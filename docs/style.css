@@ -10,6 +10,13 @@ header {
   margin: 24px 0 16px;
   padding-left: 12px;
 }
+header a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
 header img {
   width: 64px;
   height: auto;
