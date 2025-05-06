@@ -51,7 +51,7 @@
 </ul>
 <h2>Overview</h2>
 <p>Reservoir intercepts your API calls, enriches them with relevant history, manages token limits, and then forwards them to the actual LLM service.</p>
-<pre><code class="language-mermaid">sequenceDiagram
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-mermaid">sequenceDiagram
     participant App
     participant Reservoir
     participant Neo4j
@@ -74,7 +74,7 @@
     LLM-&gt;&gt;Reservoir: Return LLM response
     Reservoir-&gt;&gt;Neo4j: Store LLM response message
     Reservoir-&gt;&gt;App: Return LLM response
-</code></pre>
+</code></pre></div>
 <p>This sequence diagram provides a high-level overview of how Reservoir processes requests and responses.</p>
 <h2>Conversation Threads via Synapses</h2>
 <p>Reservoir uses synapse relationships to create “threads” of semantically related messages within the conversation graph. As messages are added, synapses link them sequentially, forming a continuous flow. When the similarity between messages drops below a threshold, the thread is split, marking a topic change. This results in distinct conversation threads, making it easy to visualize and retrieve related exchanges.</p>
@@ -102,7 +102,7 @@
 </ul>
 <p>Here, <code>$USER</code> is the system username, and <code>my-application</code> is the instance. Context enrichment and history retrieval are scoped to the specific <code>partition</code>/<code>instance</code> combination.</p>
 <h4>Curl Example</h4>
-<pre><code class="language-bash">curl http://localhost:3017/v1/partition/$USER/instance/my-application/chat/completions \
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">curl http://localhost:3017/v1/partition/$USER/instance/my-application/chat/completions \
     -H &quot;Content-Type: application/json&quot; \
     -H &quot;Authorization: Bearer $OPENAI_API_KEY&quot; \
     -d '{
@@ -114,9 +114,9 @@
             }
         ]
     }'
-</code></pre>
+</code></pre></div>
 <h4>Python Example (using <code>openai</code> library)</h4>
-<pre><code class="language-python">import os
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-python">import os
 from openai import OpenAI
 
 INSTANCE = &quot;my-application&quot;
@@ -139,10 +139,28 @@ completion = client.chat.completions.create(
     ]
 )
 print(completion.choices[0].message.content)
-</code></pre>
+</code></pre></div>
 <h2>License</h2>
 <p>This project is licensed under the Apache License 2.0 - see the <a href="LICENSE">LICENSE</a> file for details.</p>
 
   </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.copy-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          var pre = btn.closest('pre');
+          if (!pre) return;
+          // Get all code text inside the pre
+          var code = pre.querySelector('code');
+          var text = code ? code.innerText : pre.innerText;
+          navigator.clipboard.writeText(text);
+          btn.textContent = 'Copied!';
+          setTimeout(function() { btn.textContent = 'Copy'; }, 1200);
+        });
+      });
+    });
+  </script>
 </body>
 </html>

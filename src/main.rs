@@ -59,11 +59,27 @@ fn fix_image_paths(html: &str, image_paths: &[String]) -> String {
     result
 }
 
+fn wrap_code_blocks(html: &str) -> String {
+    // Wrap <pre>...</pre> with <div class="code-block">...</div>
+    let re = Regex::new(r"(<pre[\s\S]*?</pre>)").unwrap();
+    re.replace_all(html, |caps: &regex::Captures| {
+        format!("<div class=\"code-block\">{}</div>", &caps[1])
+    }).to_string()
+}
+
+fn inject_copy_button(html: &str) -> String {
+    // Insert a <button class="copy-btn">Copy</button> as the first child of every <pre> block
+    let re = Regex::new(r"(<pre[^>]*>)").unwrap();
+    re.replace_all(html, "$1<button class=\"copy-btn\">Copy</button>").to_string()
+}
+
 fn process_project(project: &Project, layout: &str) -> Result<()> {
     let readme_path = format!("{}/README.md", project.source_dir);
     let readme_content = fs::read_to_string(&readme_path)?;
     
     let html_content = markdown::to_html(&readme_content);
+    let html_content = inject_copy_button(&html_content);
+    let html_content = wrap_code_blocks(&html_content);
     
     let image_paths = extract_image_paths(&html_content);
     
