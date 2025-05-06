@@ -1,92 +1,96 @@
 use regex::Regex;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::error::Error;
+
+type Result<T> = std::result::Result<T, Box<dyn Error>>;
+
+struct Project {
+    source_dir: String,
+    output_dir: String,
+}
 
 struct SiteLink {
     name: String,
     url: String,
 }
 
-fn replace_main_content(html: &str, with: &str) -> String {
-    html.replace("{{ main_content }}", with)
+fn replace_template(html: &str, replacements: &[(&str, &str)]) -> String {
+    let mut result = html.to_string();
+    for (placeholder, content) in replacements {
+        result = result.replace(placeholder, content);
+    }
+    result
 }
 
-fn replace_menu_items(html: &str, with: &str) -> String {
-    html.replace("{{ menu_items }}", with)
+fn extract_image_paths(html: &str) -> Vec<String> {
+    let img_regex = Regex::new(r#"<img[^>]*src=["']([^"'>]+)["'][^>]*>"#).unwrap();
+    img_regex.captures_iter(html)
+        .filter_map(|cap| cap.get(1).map(|m| m.as_str().to_string()))
+        .collect()
 }
 
-fn copy_referenced_images(readme_txt: &str, project_dir: &str, output_path: &str) {
-    let image_regex = Regex::new(r"!\[[^\]]*\]\(([^)]+)\)").unwrap();
-    for cap in image_regex.captures_iter(readme_txt) {
-        let img_path = cap.get(1).unwrap().as_str();
-        let img_source = Path::new(project_dir).join(img_path);
+fn copy_images_preserve_paths(source_dir: &str, output_dir: &str, image_paths: &[String]) -> Result<Vec<String>> {
+    let mut copied_images = Vec::new();
+    for img_path in image_paths {
+        let img_source = Path::new(source_dir).join(img_path);
         if img_source.exists() {
-            if let Some(img_file_name) = img_source.file_name() {
-                let img_dest = Path::new(output_path).join(img_file_name);
-                let _ = fs::copy(&img_source, &img_dest);
+            let dest_path = Path::new(output_dir).join(img_path);
+            if let Some(parent) = dest_path.parent() {
+                fs::create_dir_all(parent)?;
             }
+            fs::copy(&img_source, &dest_path)?;
+            copied_images.push(img_path.clone());
         }
     }
+    Ok(copied_images)
 }
 
-fn copy_png_images(project_dir: &str, output_path: &str) {
-    if let Ok(entries) = fs::read_dir(project_dir) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.extension().map_or(false, |ext| ext == "png") {
-                if let Some(file_name) = path.file_name() {
-                    let dest = Path::new(output_path).join(file_name);
-                    let _ = fs::copy(&path, &dest);
-                }
-            }
-        }
+fn fix_image_paths(html: &str, image_paths: &[String]) -> String {
+    let mut result = html.to_string();
+    for img_path in image_paths {
+        let filename = Path::new(img_path).file_name().unwrap().to_string_lossy();
+        let pattern = format!(r#"src=["'][^"'>]*{}["']"#, regex::escape(&filename));
+        let replacement = format!(r#"src="./{}""#, filename);
+        result = Regex::new(&pattern).unwrap()
+            .replace_all(&result, replacement)
+            .to_string();
     }
+    result
 }
 
-fn rewrite_image_paths(html: &str, image_names: &[String]) -> String {
-    let mut new_html = html.to_string();
-    for name in image_names {
-        // Replace src="<anything>/<name>" or src="<name>" with src="./<name>"
-        let re = Regex::new(&format!(r#"([^"]*{})"#, regex::escape(name))).unwrap();
-        new_html = re.replace_all(&new_html, format!("./{}", name)).to_string();
-    }
-    new_html
+fn process_project(project: &Project, layout: &str) -> Result<()> {
+    let readme_path = format!("{}/README.md", project.source_dir);
+    let readme_content = fs::read_to_string(&readme_path)?;
+    
+    let html_content = markdown::to_html(&readme_content);
+    
+    let image_paths = extract_image_paths(&html_content);
+    
+    fs::create_dir_all(&project.output_dir)?;
+    
+    let copied_images = copy_images_preserve_paths(&project.source_dir, &project.output_dir, &image_paths)?;
+    
+    let html_with_fixed_paths = fix_image_paths(&html_content, &copied_images);
+    
+    let final_html = replace_template(layout, &[
+        ("{{ main_content }}", &html_with_fixed_paths),
+    ]);
+    
+    let output_file = format!("{}/index.html", project.output_dir);
+    fs::write(output_file, final_html)?;
+    
+    Ok(())
 }
 
-fn create_project_docs(layout: &str, project: (&str, &str)) {
-    let root_path = format!("{}/README.md", project.0);
-    let readme_txt = fs::read_to_string(&root_path).expect("Unable to read file");
-    let readme_html_raw = markdown::to_html(&readme_txt);
-    let output_path = format!("docs/projects/{}", project.1);
-    let output_file = format!("{}/index.html", output_path);
-    fs::create_dir_all(&output_path).expect("Unable to create directory");
-
-    // Collect image names referenced in the README
-    let image_regex = Regex::new(r"!\[[^\]]*\]\(([^)]+)\)").unwrap();
-    let mut image_names = Vec::new();
-    for cap in image_regex.captures_iter(&readme_txt) {
-        let img_path = cap.get(1).unwrap().as_str();
-        let img_source = Path::new(project.0).join(img_path);
-        if img_source.exists() {
-            if let Some(img_file_name) = img_source.file_name() {
-                let img_dest = Path::new(&output_path).join(img_file_name);
-                let _ = fs::copy(&img_source, &img_dest);
-                image_names.push(img_file_name.to_string_lossy().to_string());
-            }
-        }
-    }
-    copy_png_images(project.0, &output_path);
-
-    // Rewrite image paths in HTML
-    let readme_html = rewrite_image_paths(&readme_html_raw, &image_names);
-    let readme_html = replace_main_content(layout, &readme_html);
-    fs::write(&output_file, readme_html).expect("Unable to write file");
-}
-
-fn main() {
-    let project_paths = vec![
-        ("../reservoir", "reservoir"),
+fn main() -> Result<()> {
+    let projects = vec![
+        Project {
+            source_dir: "../reservoir".to_string(),
+            output_dir: "docs/projects/reservoir".to_string(),
+        },
     ];
+    
     let links = vec![
         SiteLink {
             name: "md-chat".to_string(),
@@ -94,18 +98,29 @@ fn main() {
         },
         SiteLink {
             name: "Reservoir".to_string(),
-            url: "projects/reservoir".to_string(),
+            url: "/projects/reservoir".to_string(),
         },
     ];
-    let layout = include_str!("./templates/layout.html");
-    let menu_html = links.iter().map(|link| {
-        format!("<li><a href=\"{}\">{}</a></li>", link.url, link.name)
-    }).collect::<Vec<_>>().join("\n");
-    let layout = replace_menu_items(layout, &menu_html);
-    for path in project_paths {
-        create_project_docs(&layout, path);
+    
+    let menu_html = links.iter()
+        .map(|link| format!("<li><a href=\"{}\">{}</a></li>", link.url, link.name))
+        .collect::<Vec<_>>()
+        .join("\n");
+    
+    let layout_template = include_str!("./templates/layout.html");
+    let layout = replace_template(layout_template, &[
+        ("{{ menu_items }}", &menu_html),
+    ]);
+    
+    for project in &projects {
+        process_project(project, &layout)?;
     }
-    let index = include_str!("./pages/index.html");
-    let index = replace_main_content(&layout, index);
-    fs::write("docs/index.html", index).expect("Unable to write file");
+    
+    let index_content = include_str!("./pages/index.html");
+    let index_html = replace_template(&layout, &[
+        ("{{ main_content }}", index_content),
+    ]);
+    fs::write("docs/index.html", index_html)?;
+    
+    Ok(())
 }
