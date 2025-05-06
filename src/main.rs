@@ -30,17 +30,17 @@ fn extract_image_paths(html: &str) -> Vec<String> {
         .collect()
 }
 
-fn copy_images_preserve_paths(source_dir: &str, output_dir: &str, image_paths: &[String]) -> Result<Vec<String>> {
+fn copy_images_flat(source_dir: &str, output_dir: &str, image_paths: &[String]) -> Result<Vec<String>> {
     let mut copied_images = Vec::new();
     for img_path in image_paths {
         let img_source = Path::new(source_dir).join(img_path);
         if img_source.exists() {
-            let dest_path = Path::new(output_dir).join(img_path);
-            if let Some(parent) = dest_path.parent() {
-                fs::create_dir_all(parent)?;
-            }
+            // Only use the filename, not the path
+            let filename = Path::new(img_path).file_name().unwrap();
+            let dest_path = Path::new(output_dir).join(filename);
+            fs::create_dir_all(output_dir)?;
             fs::copy(&img_source, &dest_path)?;
-            copied_images.push(img_path.clone());
+            copied_images.push(filename.to_string_lossy().to_string());
         }
     }
     Ok(copied_images)
@@ -85,7 +85,7 @@ fn process_project(project: &Project, layout: &str) -> Result<()> {
     
     fs::create_dir_all(&project.output_dir)?;
     
-    let copied_images = copy_images_preserve_paths(&project.source_dir, &project.output_dir, &image_paths)?;
+    let copied_images = copy_images_flat(&project.source_dir, &project.output_dir, &image_paths)?;
     
     let html_with_fixed_paths = fix_image_paths(&html_content, &copied_images);
     
