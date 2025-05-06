@@ -1,9 +1,16 @@
 html, body {
-  font-family: monospace;
   margin: 0;
   padding: 0;
+  font-family: monospace;
+}
+p , nav{
+  font-size: large;
+}
+h1, h2, h3, h4, h5, h6, nav, header {
+  font-family: monospace;
 }
 header {
+  font-size: large;
   display: flex;
   align-items: center;
   gap: 12px;
