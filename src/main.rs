@@ -105,12 +105,16 @@ fn main() -> Result<()> {
             source_dir: "../reservoir".to_string(),
             output_dir: "docs/projects/reservoir".to_string(),
         },
+        Project {
+            source_dir: "../md-chat".to_string(),
+            output_dir: "docs/projects/md-chat".to_string(),
+        },
     ];
     
     let links = vec![
         SiteLink {
             name: "md-chat".to_string(),
-            url: "https://github.com/Sector-F-Labs/md-chat".to_string(),
+            url: "/projects/md-chat".to_string(),
         },
         SiteLink {
             name: "Reservoir".to_string(),
