@@ -1,5 +1,6 @@
 main:
 	cargo run
 
-open: main
-	open docs/index.html
+open: 
+	miniserve docs --index index.html
+

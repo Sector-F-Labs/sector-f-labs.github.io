@@ -3,6 +3,10 @@ html, body {
   padding: 0;
   font-family: monospace;
 }
+img {
+  max-width: 100%;
+  height: auto;
+}
 p , nav{
   font-size: large;
 }
