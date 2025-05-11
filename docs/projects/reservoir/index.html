@@ -35,7 +35,7 @@
   <main>
     <h1>🚧 Under Construction</h1>
 <blockquote>
-<p>Reservoir is in active development. It’s not ready for production use yet. Expect breaking changes.</p>
+<p>Reservoir is in active development. It's not ready for production use yet. Expect breaking changes.</p>
 </blockquote>
 <h1>Reservoir</h1>
 <h2>What is Reservoir?</h2>
@@ -48,7 +48,7 @@
   {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is the answer times 3?&quot;}
 ]
 </code></pre></div>
-<p>If you only send the last question, the model won’t know what “the answer” refers to. You have to keep track of all previous messages and include them every time.</p>
+<p>If you only send the last question, the model won't know what &quot;the answer&quot; refers to. You have to keep track of all previous messages and include them every time.</p>
 <p><strong>This can get tricky as conversations grow!</strong></p>
 <p>Reservoir acts as a smart proxy: it automatically stores your chat history and inserts the right context into each request. You just talk to the API as usual and Reservoir handles the memory, context, and even finds other relevant messages from your past conversations to help the model give better answers.</p>
 <ul>
@@ -57,7 +57,7 @@
 <li>Your data stays private and local</li>
 </ul>
 <h3>Use Reservoir with Multiple Apps</h3>
-<p>You can point multiple apps or clients to a single Reservoir instance. This means you can keep context and history across different tools on your computer—like your terminal, a web app, or a chat client. If you want to keep conversations separate, you can use Reservoir’s partitioning feature to organize chats by app, project, or any context you choose.</p>
+<p>You can point multiple apps or clients to a single Reservoir instance. This means you can keep context and history across different tools on your computer—like your terminal, a web app, or a chat client. If you want to keep conversations separate, you can use Reservoir's partitioning feature to organize chats by app, project, or any context you choose.</p>
 <h2>Why Use Reservoir?</h2>
 <ul>
 <li><strong>Own your AI history</strong>: All your conversations are stored locally, never in the cloud.</li>
@@ -104,7 +104,7 @@
 </code></pre></div>
 <p>This sequence diagram provides a high-level overview of how Reservoir processes requests and responses.</p>
 <h2>Conversation Threads via Synapses</h2>
-<p>Reservoir uses synapse relationships to create “threads” of semantically related messages within the conversation graph. As messages are added, synapses link them sequentially, forming a continuous flow. When the similarity between messages drops below a threshold, the thread is split, marking a topic change. This results in distinct conversation threads, making it easy to visualize and retrieve related exchanges.</p>
+<p>Reservoir uses synapse relationships to create &quot;threads&quot; of semantically related messages within the conversation graph. As messages are added, synapses link them sequentially, forming a continuous flow. When the similarity between messages drops below a threshold, the thread is split, marking a topic change. This results in distinct conversation threads, making it easy to visualize and retrieve related exchanges.</p>
 <p>You can see an example of this structure in the following graph visualization:</p>
 <p><img src="./conversation_graph_view.png" alt="Conversation Graph View" /></p>
 <h2>Documentation</h2>
@@ -120,16 +120,52 @@
 </ul>
 <h2>Quick Start</h2>
 <p>Reservoir provides an OpenAI-compatible API endpoint. You can use your system username as the partition and your application name as the instance for best results.</p>
+<h3>Starting the Server</h3>
+<p>To start the Reservoir server:</p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- start
+</code></pre></div>
+<p>This command:</p>
+<ol>
+<li>Initializes the vector index in Neo4j for semantic search</li>
+<li>Starts the server on the configured port (default: 3017)</li>
+</ol>
+<p>The server will be available at <code>http://localhost:3017</code> (or your configured port).</p>
+<h3>Import/Export Data</h3>
+<p>Reservoir supports exporting all message nodes to a JSON file and importing them back into the database. This is useful for backup, migration, or sharing your AI conversation history.</p>
+<h4>Export all message nodes to JSON</h4>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- export &gt; messages.json
+</code></pre></div>
+<p>This command prints all message nodes in the database as pretty-printed JSON to stdout. Redirect the output to a file to save it.</p>
+<h4>Import message nodes from a JSON file</h4>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- import path/to/messages.json
+</code></pre></div>
+<h3>View the last N messages</h3>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- view &lt;COUNT&gt; [--partition &lt;PARTITION&gt;] [--instance &lt;INSTANCE&gt;]
+</code></pre></div>
+<p>Displays the last <code>&lt;COUNT&gt;</code> messages in the specified partition and instance. If not provided, <code>partition</code> defaults to &quot;default&quot; and <code>instance</code> defaults to the partition.</p>
+<p>Example:</p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- view 5 --partition sales --instance eu-west
+</code></pre></div>
+<p>Sample output:</p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code>2025-05-09T14:23:01+00:00 [abc123] user: Hello there!
+2025-05-09T14:23:02+00:00 [abc123] assistant: Hi! How can I help?
+2025-05-09T14:24:10+00:00 [def456] user: Show me last week's sales report.
+2025-05-09T14:24:12+00:00 [def456] assistant: Here is the summary for last week's sales...
+2025-05-09T14:25:00+00:00 [ghi789] user: Thanks!
+</code></pre></div>
+<p>This command reads the specified JSON file (in the same format as the export) and imports all message nodes into the database.</p>
 <h3>Example Usage</h3>
 <ul>
-<li><strong>Instead of</strong>:
-https://api.openai.com/v1/chat/completions</li>
-<li><strong>Use</strong>:
-http://localhost:3017/v1/partition/$USER/instance/my-application/chat/completions</li>
+<li><strong>Instead of:</strong><br />
+<code>https://api.openai.com/v1/chat/completions</code></li>
+<li><strong>Use:</strong><br />
+<code>http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions</code></li>
 </ul>
-<p>Here, <code>$USER</code> is the system username, and <code>my-application</code> is the instance. Context enrichment and history retrieval are scoped to the specific <code>partition</code>/<code>instance</code> combination.</p>
+<blockquote>
+<p>Here, <code>$USER</code> is your system username, and <code>reservoir</code> is the instance name.</p>
+</blockquote>
 <h4>Curl Example</h4>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">curl http://localhost:3017/v1/partition/$USER/instance/my-application/chat/completions \
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">curl &quot;http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions&quot; \
     -H &quot;Content-Type: application/json&quot; \
     -H &quot;Authorization: Bearer $OPENAI_API_KEY&quot; \
     -d '{

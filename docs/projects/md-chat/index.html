@@ -35,24 +35,33 @@
   <main>
     <h1>MD-Chat</h1>
 <p>A lightweight, fast desktop client for experimenting with OpenAI-compatible APIs. Built with <a href="https://github.com/emilk/egui">egui</a> for native performance and <a href="https://commonmark.org/">CommonMark</a> support.</p>
-<p><img src="./screenshot.png" alt="Screenshot" /></p>
 <h2>Features</h2>
 <ul>
 <li>🚀 Fast native performance with egui</li>
 <li>📝 Full Markdown rendering support</li>
 <li>🌓 Light/Dark mode toggle</li>
 <li>💾 Persistent window position</li>
-<li>🔄 Compatible with OpenAI and similar APIs (like Reservoir)</li>
+<li>🔄 Compatible with OpenAI and similar APIs (like <a href="https://github.com/Sector-F-Labs/reservoir">Reservoir</a>)</li>
 <li>🎨 Clean, minimal interface</li>
 </ul>
+<p><img src="./icon_256x256.png" alt="Logo" /></p>
+<p><img src="./screenshot.png" alt="Screenshot" /></p>
 <h2>Configuration</h2>
-<p>The application uses environment variables for configuration:</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash"># Required: Your API key
-export OPENAI_API_KEY=&quot;your-api-key&quot;
-
-# Optional: Custom API endpoint (defaults to OpenAI)
-export OPENAI_API_URL=&quot;https://your-api-endpoint/v1/chat/completions&quot;
+<p>MD-Chat uses a TOML config file for settings such as your OpenAI API key and API URL. <strong>Environment variables are no longer required.</strong></p>
+<h3>Config File Location</h3>
+<ul>
+<li><strong>macOS:</strong> <code>~/Library/Application Support/MD-Chat/config.toml</code></li>
+<li><strong>Linux:</strong> <code>~/.config/MD-Chat/config.toml</code></li>
+</ul>
+<p>The config file is created automatically on first run if it does not exist.</p>
+<h3>Example <code>config.toml</code></h3>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-toml">openai_api_key = &quot;sk-...yourkey...&quot;
+api_url = &quot;https://api.openai.com/v1/chat/completions&quot;
 </code></pre></div>
+<ul>
+<li>If <code>openai_api_key</code> is missing or empty, requests will fail unless the API does not require a key.</li>
+<li>You can edit this file to change your API key or use a different API URL.</li>
+</ul>
 <h2>Building and Running</h2>
 <div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash"># Build the application
 cargo build --release
@@ -62,7 +71,6 @@ cargo run --release
 </code></pre></div>
 <h2>Usage</h2>
 <ol>
-<li>Configure your environment variables</li>
 <li>Launch the application</li>
 <li>Type your message in the input box</li>
 <li>Press Enter or click Send to submit</li>
