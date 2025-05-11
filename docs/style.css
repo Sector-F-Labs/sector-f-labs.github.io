@@ -1,7 +1,8 @@
 html, body {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: "Lexend", sans-serif;
+  font-weight: 300;
   overflow-x: hidden;
   text-overflow: wrap;
 }
@@ -14,14 +15,12 @@ img {
 p , nav{
   font-size: large;
 }
-header  h2 {
-  font-family: monospace;
-}
-h1, h2, h3, h4, h5, h6 {
-  font-family: sans-serif;
+header  h1 {
+  font-family: "Roboto Mono", monospace;
+  font-weight: 500;
+  font-size: x-large;
 }
 header {
-  font-size: large;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -38,6 +37,10 @@ header a {
 header img {
   width: 64px;
   height: auto;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Lexend", sans-serif;
+  font-weight: 400;
 }
 nav {
   width: 180px;
