@@ -79,6 +79,35 @@ cargo run --release
 <li>Press Enter or click Send to submit</li>
 <li>View the markdown-formatted response</li>
 </ol>
+<h2>Modal Editing &amp; Vim-like Navigation</h2>
+<p>MD-Chat supports modal editing inspired by vim, making keyboard navigation fast and efficient:</p>
+<ul>
+<li>
+<p><strong>Modes:</strong></p>
+<ul>
+<li><strong>INSERT</strong>: Type and edit your message as usual. Press <code>Esc</code> to enter NORMAL mode.</li>
+<li><strong>NORMAL</strong>: Keyboard navigation and commands. Press <code>i</code> or click the input box to return to INSERT mode.</li>
+</ul>
+</li>
+<li>
+<p><strong>Navigation in NORMAL mode:</strong></p>
+<ul>
+<li><code>j</code> / <code>k</code>: Scroll down/up by a small amount</li>
+<li><code>Shift+j</code> / <code>Shift+k</code>: Scroll down/up by one window height</li>
+<li><code>g</code>: Jump to the top</li>
+<li><code>G</code>: Jump to the bottom</li>
+<li><code>r</code>: Refresh chat history</li>
+</ul>
+</li>
+<li>
+<p><strong>Other:</strong></p>
+<ul>
+<li>The current mode is shown in the top right, styled like vim.</li>
+<li>The input box is always interactive; clicking it in NORMAL mode returns you to INSERT mode.</li>
+</ul>
+</li>
+</ul>
+<p>This makes MD-Chat a joy to use for keyboard-centric users and fans of modal editing!</p>
 <h2>Development</h2>
 <p>The codebase is organized into two main components:</p>
 <ul>
