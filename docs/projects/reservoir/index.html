@@ -40,11 +40,18 @@
 <blockquote>
 <p>Reservoir is in active development. It's not ready for production use yet. Expect breaking changes.</p>
 </blockquote>
+<p><strong>Recent Updates:</strong></p>
+<ul>
+<li>✅ Added support for <code>web_search_options</code> in chat requests</li>
+<li>✅ Enhanced multi-provider support (OpenAI, Ollama, Mistral, Gemini)</li>
+<li>✅ Improved model configuration with automatic provider detection</li>
+<li>✅ Fixed deserialization issues for optional request fields</li>
+</ul>
 <h1>Reservoir</h1>
 <h2>What is Reservoir?</h2>
-<p>Reservoir is your helpful memory for AI conversations. It sits between your app and the OpenAI Chat Completions API, making it easier to have rich, ongoing conversations with your favorite language models.</p>
+<p>Reservoir is your helpful memory for AI conversations. It sits between your app and any OpenAI-compatible Chat Completions API, making it easier to have rich, ongoing conversations with your favorite language models from multiple providers.</p>
 <h3>Why does this matter?</h3>
-<p>When you use the <a href="https://platform.openai.com/docs/guides/chat">OpenAI Chat Completions API</a>, you need to send the full conversation history with every request. For example:</p>
+<p>When you use any <a href="https://platform.openai.com/docs/guides/chat">OpenAI-compatible Chat Completions API</a>, you need to send the full conversation history with every request. For example:</p>
 <div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-json">[
   {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is 1 + 1?&quot;},
   {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;2&quot;},
@@ -53,11 +60,33 @@
 </code></pre></div>
 <p>If you only send the last question, the model won't know what &quot;the answer&quot; refers to. You have to keep track of all previous messages and include them every time.</p>
 <p><strong>This can get tricky as conversations grow!</strong></p>
-<p>Reservoir acts as a smart proxy: it automatically stores your chat history and inserts the right context into each request. You just talk to the API as usual and Reservoir handles the memory, context, and even finds other relevant messages from your past conversations to help the model give better answers.</p>
+<p>Reservoir acts as a smart proxy: it automatically stores your chat history and inserts the right context into each request. You just talk to any OpenAI-compatible API as usual and Reservoir handles the memory, context, and even finds other relevant messages from your past conversations to help the model give better answers.</p>
+<p><strong>Supported Providers:</strong></p>
 <ul>
-<li>No more manual history management</li>
-<li>Automatic context enrichment</li>
-<li>Your data stays private and local</li>
+<li>
+<p>OpenAI (GPT-4, GPT-4o, GPT-3.5-turbo, etc.)</p>
+</li>
+<li>
+<p>Ollama (llama3.2, gemma3, and any local models)</p>
+</li>
+<li>
+<p>Mistral AI (mistral-large-2402, etc.)</p>
+</li>
+<li>
+<p>Google Gemini (gemini-2.0-flash, etc.)</p>
+</li>
+<li>
+<p>Any OpenAI-compatible API endpoint</p>
+</li>
+<li>
+<p>No more manual history management</p>
+</li>
+<li>
+<p>Automatic context enrichment</p>
+</li>
+<li>
+<p>Your data stays private and local</p>
+</li>
 </ul>
 <h3>Use Reservoir with Multiple Apps</h3>
 <p>You can point multiple apps or clients to a single Reservoir instance. This means you can keep context and history across different tools on your computer—like your terminal, a web app, or a chat client. If you want to keep conversations separate, you can use Reservoir's partitioning feature to organize chats by app, project, or any context you choose.</p>
@@ -71,6 +100,13 @@
 </ul>
 <p><img src="./logo_256.png" alt="Screenshot" /></p>
 <p>Reservoir lets you have conversations with multiple AI models and providers, all while keeping your data private and local. Every interaction is stored on your device, building a personal knowledge base that never leaves your network. A single thread of conversation can span multiple models without losing context, allowing you to seamlessly switch between different AI providers while maintaining the flow of your discussion.</p>
+<p><strong>Advanced Features:</strong></p>
+<ul>
+<li><strong>Web Search Integration</strong>: Pass <code>web_search_options</code> to enable AI models with web search capabilities</li>
+<li><strong>Multi-Provider Routing</strong>: Automatically routes requests to the correct provider based on model name</li>
+<li><strong>Token Management</strong>: Smart truncation to stay within model limits while preserving context</li>
+<li><strong>Flexible Configuration</strong>: Environment variables for custom provider endpoints</li>
+</ul>
 <h2>Table of Contents</h2>
 <ul>
 <li><a href="#overview">Overview</a></li>
@@ -133,6 +169,24 @@
 <li>Starts the server on the configured port (default: 3017)</li>
 </ol>
 <p>The server will be available at <code>http://localhost:3017</code> (or your configured port).</p>
+<h4>Ollama Mode</h4>
+<p>For seamless integration with Ollama-compatible clients, you can start Reservoir in Ollama mode:</p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- start --ollama
+</code></pre></div>
+<p>This mode configures Reservoir to act as a drop-in replacement for Ollama, making it easy to add memory and context to existing Ollama-based applications.</p>
+<h4>Testing Your Setup</h4>
+<p>You can test your Reservoir installation using the included hurl tests:</p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash"># Test all endpoints
+./hurl/test.sh
+
+# Test specific endpoints
+hurl --variable USER=&quot;$USER&quot; --variable OPENAI_API_KEY=&quot;$OPENAI_API_KEY&quot; hurl/chat_completion.hurl
+hurl --variable USER=&quot;$USER&quot; hurl/reservoir-view.hurl
+hurl --variable USER=&quot;$USER&quot; hurl/reservoir-search.hurl
+</code></pre></div>
+<p>Or test directly with Ollama (if you have it running):</p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">hurl hurl/ollama_mode.hurl
+</code></pre></div>
 <h3>Import/Export Data</h3>
 <p>Reservoir supports exporting all message nodes to a JSON file and importing them back into the database. This is useful for backup, migration, or sharing your AI conversation history.</p>
 <h4>Export all message nodes to JSON</h4>
@@ -159,15 +213,20 @@
 <p>This command reads the specified JSON file (in the same format as the export) and imports all message nodes into the database.</p>
 <h3>Example Usage</h3>
 <ul>
-<li><strong>Instead of:</strong><br />
-<code>https://api.openai.com/v1/chat/completions</code></li>
-<li><strong>Use:</strong><br />
-<code>http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions</code></li>
+<li>
+<p><strong>Instead of:</strong></p>
+<p><code>https://api.openai.com/v1/chat/completions</code></p>
+</li>
+<li>
+<p><strong>Use:</strong></p>
+<p><code>http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions</code></p>
+</li>
 </ul>
 <blockquote>
 <p>Here, <code>$USER</code> is your system username, and <code>reservoir</code> is the instance name.</p>
 </blockquote>
-<h4>Curl Example</h4>
+<h4>Curl Examples</h4>
+<p><strong>OpenAI Model:</strong></p>
 <div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">curl &quot;http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions&quot; \
     -H &quot;Content-Type: application/json&quot; \
     -H &quot;Authorization: Bearer $OPENAI_API_KEY&quot; \
@@ -181,7 +240,39 @@
         ]
     }'
 </code></pre></div>
-<h4>Python Example (using <code>openai</code> library)</h4>
+<p><strong>Ollama Model (no API key needed):</strong></p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">curl &quot;http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions&quot; \
+    -H &quot;Content-Type: application/json&quot; \
+    -d '{
+        &quot;model&quot;: &quot;gemma3&quot;,
+        &quot;messages&quot;: [
+            {
+                &quot;role&quot;: &quot;user&quot;,
+                &quot;content&quot;: &quot;Explain quantum computing in simple terms.&quot;
+            }
+        ]
+    }'
+</code></pre></div>
+<p><strong>With Web Search Options:</strong></p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">curl &quot;http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions&quot; \
+    -H &quot;Content-Type: application/json&quot; \
+    -H &quot;Authorization: Bearer $OPENAI_API_KEY&quot; \
+    -d '{
+        &quot;model&quot;: &quot;gpt-4o-search-preview&quot;,
+        &quot;messages&quot;: [
+            {
+                &quot;role&quot;: &quot;user&quot;,
+                &quot;content&quot;: &quot;What are the latest developments in AI?&quot;
+            }
+        ],
+        &quot;web_search_options&quot;: {
+            &quot;enabled&quot;: true,
+            &quot;max_results&quot;: 5
+        }
+    }'
+</code></pre></div>
+<h4>Python Examples (using <code>openai</code> library)</h4>
+<p><strong>Basic Usage with OpenAI:</strong></p>
 <div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-python">import os
 from openai import OpenAI
 
@@ -206,9 +297,115 @@ completion = client.chat.completions.create(
 )
 print(completion.choices[0].message.content)
 </code></pre></div>
-<h2>License</h2>
-<p>This project is licensed under the Apache License 2.0 - see the <a href="LICENSE">LICENSE</a> file for details.</p>
+<p><strong>Using Ollama (no API key required):</strong></p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-python">import os
+from openai import OpenAI
 
+INSTANCE = &quot;my-application&quot;
+PARTITION = os.getenv(&quot;USER&quot;)
+RESERVOIR_PORT = os.getenv('RESERVOIR_PORT', '3017')
+RESERVOIR_BASE_URL = f&quot;http://localhost:{RESERVOIR_PORT}/v1/partition/{PARTITION}/instance/{INSTANCE}&quot;
+
+client = OpenAI(
+    base_url=RESERVOIR_BASE_URL,
+    api_key=&quot;not-needed-for-ollama&quot;  # Ollama doesn't require API keys
+)
+
+completion = client.chat.completions.create(
+    model=&quot;llama3.2&quot;,  # or &quot;gemma3&quot;, or any Ollama model
+    messages=[
+        {
+            &quot;role&quot;: &quot;user&quot;,
+            &quot;content&quot;: &quot;Explain the concept of recursion with a simple example.&quot;
+        }
+    ]
+)
+print(completion.choices[0].message.content)
+</code></pre></div>
+<p><strong>With Web Search Options:</strong></p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-python">completion = client.chat.completions.create(
+    model=&quot;gpt-4o-search-preview&quot;,
+    messages=[
+        {
+            &quot;role&quot;: &quot;user&quot;,
+            &quot;content&quot;: &quot;What are the latest trends in machine learning?&quot;
+        }
+    ],
+    extra_body={
+        &quot;web_search_options&quot;: {
+            &quot;enabled&quot;: True,
+            &quot;max_results&quot;: 5
+        }
+    }
+)
+</code></pre></div>
+<h3>Environment Variables</h3>
+<p>Reservoir supports customizing provider endpoints via environment variables:</p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash"># OpenAI (default: https://api.openai.com/v1/chat/completions)
+export RSV_OPENAI_BASE_URL=&quot;https://api.openai.com/v1/chat/completions&quot;
+
+# Ollama (default: http://localhost:11434/v1/chat/completions)
+export RSV_OLLAMA_BASE_URL=&quot;http://localhost:11434/v1/chat/completions&quot;
+
+# Mistral (default: https://api.mistral.ai/v1/chat/completions)
+export RSV_MISTRAL_BASE_URL=&quot;https://api.mistral.ai/v1/chat/completions&quot;
+
+# API Keys
+export OPENAI_API_KEY=&quot;your-openai-key&quot;
+export MISTRAL_API_KEY=&quot;your-mistral-key&quot;
+export GEMINI_API_KEY=&quot;your-gemini-key&quot;
+</code></pre></div>
+<h3>Supported Models</h3>
+<p>Reservoir automatically routes requests to the appropriate provider based on the model name:</p>
+<p>| Model | Provider | API Key Required |
+|-------|----------|------------------|
+| <code>gpt-4</code>, <code>gpt-4o</code>, <code>gpt-4o-mini</code>, <code>gpt-3.5-turbo</code> | OpenAI | Yes (<code>OPENAI_API_KEY</code>) |
+| <code>gpt-4o-search-preview</code> | OpenAI | Yes (<code>OPENAI_API_KEY</code>) |
+| <code>llama3.2</code>, <code>gemma3</code>, or any custom name | Ollama | No |
+| <code>mistral-large-2402</code> | Mistral | Yes (<code>MISTRAL_API_KEY</code>) |
+| <code>gemini-2.0-flash</code>, <code>gemini-2.5-flash-preview-05-20</code> | Google | Yes (<code>GEMINI_API_KEY</code>) |</p>
+<p><strong>Note:</strong> Any model name not explicitly configured will default to using Ollama.</p>
+<h2>Troubleshooting</h2>
+<h3>Common Issues</h3>
+<h4>Server Not Starting</h4>
+<ul>
+<li><strong>Check Neo4j</strong>: Ensure Neo4j is running and accessible</li>
+<li><strong>Port Conflicts</strong>: Default port 3017 might be in use. Check with <code>lsof -i :3017</code></li>
+<li><strong>Environment</strong>: Source your <code>.envrc</code> if using direnv: <code>direnv allow</code></li>
+</ul>
+<h4>&quot;Internal Server Error&quot; Responses</h4>
+<ul>
+<li><strong>API Keys</strong>: Verify your API keys are set correctly:
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">echo $OPENAI_API_KEY
+echo $MISTRAL_API_KEY
+echo $GEMINI_API_KEY
+</code></pre></div>
+</li>
+<li><strong>Model Names</strong>: Ensure you're using supported model names (see table above)</li>
+<li><strong>Ollama</strong>: If using Ollama models, verify Ollama is running: <code>ollama list</code></li>
+</ul>
+<h4>Deserialization Errors</h4>
+<ul>
+<li><strong>JSON Format</strong>: Ensure your JSON request is properly formatted</li>
+<li><strong>Optional Fields</strong>: Fields like <code>web_search_options</code> are optional and can be omitted</li>
+<li><strong>Content-Type</strong>: Always use <code>Content-Type: application/json</code></li>
+</ul>
+<h4>Connection Issues</h4>
+<ul>
+<li><strong>Provider URLs</strong>: Check if custom provider URLs are accessible</li>
+<li><strong>Network</strong>: Verify internet connectivity for cloud providers</li>
+<li><strong>Firewalls</strong>: Ensure no firewall is blocking outbound requests</li>
+</ul>
+<h3>Getting Help</h3>
+<p>If you encounter issues:</p>
+<ol>
+<li>Check the server logs for detailed error messages</li>
+<li>Verify your environment variables are set correctly</li>
+<li>Test with a simple curl request first</li>
+<li>Try the included hurl tests to isolate the problem</li>
+</ol>
+<h2>License</h2>
+<p>This project is licensed under the BSD 3-Clause License - see the <a href="LICENSE">LICENSE</a> file for details.</p>
   </main>
 
   <footer>
