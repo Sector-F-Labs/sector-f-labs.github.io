@@ -30,8 +30,9 @@
 
   <nav>
     <ul>
-      <li><a href="/projects/md-chat">md-chat</a></li>
+      <li><a href="/projects/exp-013-service-pipe">exp-013-service-pipe</a></li>
 <li><a href="/projects/reservoir">Reservoir</a></li>
+<li><a href="/projects/md-chat">md-chat</a></li>
     </ul>
   </nav>
 
@@ -42,6 +43,7 @@
 </blockquote>
 <p><strong>Recent Updates:</strong></p>
 <ul>
+<li>✅ Added intelligent request forwarding for unparseable JSON bodies</li>
 <li>✅ Added support for <code>web_search_options</code> in chat requests</li>
 <li>✅ Enhanced multi-provider support (OpenAI, Ollama, Mistral, Gemini)</li>
 <li>✅ Improved model configuration with automatic provider detection</li>
@@ -102,6 +104,7 @@
 <p>Reservoir lets you have conversations with multiple AI models and providers, all while keeping your data private and local. Every interaction is stored on your device, building a personal knowledge base that never leaves your network. A single thread of conversation can span multiple models without losing context, allowing you to seamlessly switch between different AI providers while maintaining the flow of your discussion.</p>
 <p><strong>Advanced Features:</strong></p>
 <ul>
+<li><strong>Request Forwarding</strong>: Automatically forwards unparseable requests to the appropriate API while logging details for debugging</li>
 <li><strong>Web Search Integration</strong>: Pass <code>web_search_options</code> to enable AI models with web search capabilities</li>
 <li><strong>Multi-Provider Routing</strong>: Automatically routes requests to the correct provider based on model name</li>
 <li><strong>Token Management</strong>: Smart truncation to stay within model limits while preserving context</li>
@@ -156,6 +159,7 @@
 <li><a href="./docs/features.md">Features</a>: Key features and future roadmap.</li>
 <li><a href="./docs/deployment.md">Deployment</a>: Steps to deploy Reservoir locally or in production.</li>
 <li><a href="./docs/faq.md">FAQ</a>: Troubleshooting, common questions, and tips.</li>
+<li><a href="./docs/request_forwarding.md">Request Forwarding</a>: How Reservoir handles unparseable requests.</li>
 </ul>
 <h2>Quick Start</h2>
 <p>Reservoir provides an OpenAI-compatible API endpoint. You can use your system username as the partition and your application name as the instance for best results.</p>
@@ -176,13 +180,17 @@
 <p>This mode configures Reservoir to act as a drop-in replacement for Ollama, making it easy to add memory and context to existing Ollama-based applications.</p>
 <h4>Testing Your Setup</h4>
 <p>You can test your Reservoir installation using the included hurl tests:</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash"># Test all endpoints
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash"># Test all endpoints including request forwarding
 ./hurl/test.sh
 
 # Test specific endpoints
 hurl --variable USER=&quot;$USER&quot; --variable OPENAI_API_KEY=&quot;$OPENAI_API_KEY&quot; hurl/chat_completion.hurl
 hurl --variable USER=&quot;$USER&quot; hurl/reservoir-view.hurl
 hurl --variable USER=&quot;$USER&quot; hurl/reservoir-search.hurl
+
+# Test request forwarding functionality
+hurl --variable USER=&quot;$USER&quot; hurl/test_forwarding.hurl
+./test_forwarding.sh
 </code></pre></div>
 <p>Or test directly with Ollama (if you have it running):</p>
 <div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">hurl hurl/ollama_mode.hurl
@@ -395,6 +403,12 @@ echo $GEMINI_API_KEY
 <li><strong>Provider URLs</strong>: Check if custom provider URLs are accessible</li>
 <li><strong>Network</strong>: Verify internet connectivity for cloud providers</li>
 <li><strong>Firewalls</strong>: Ensure no firewall is blocking outbound requests</li>
+</ul>
+<h4>Request Forwarding</h4>
+<ul>
+<li><strong>Malformed Requests</strong>: Check server logs for &quot;Failed to parse request body&quot; warnings to see what requests are being forwarded</li>
+<li><strong>Missing Features</strong>: Forwarded requests bypass Reservoir's memory and context features</li>
+<li><strong>Provider Routing</strong>: Verify the correct API endpoint is being used based on model name</li>
 </ul>
 <h3>Getting Help</h3>
 <p>If you encounter issues:</p>
