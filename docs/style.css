@@ -220,10 +220,14 @@ hr {
     margin: 24px 0;
 }
 
-footer {
-    margin: 24px 0;
-    padding: 0 16px;
-    text-align: center;
+footer,
+footer p {
+    font-family: monospace;
+    color: var(--bg-color);
+    margin: 0 0;
+    padding: 0 0px;
+    text-align: right;
+    background: var(--link-color);
 }
 
 a {
