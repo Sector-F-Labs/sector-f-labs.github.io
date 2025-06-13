@@ -233,3 +233,149 @@ footer p {
 a {
     color: var(--link-color);
 }
+
+/* Prism.js syntax highlighting overrides */
+pre[class*="language-"] {
+    background-color: var(--pre-bg) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1em;
+    overflow-x: auto;
+    position: relative;
+    margin-bottom: 2em;
+}
+
+code[class*="language-"] {
+    background: transparent !important;
+    color: var(--text-color) !important;
+}
+
+/* Light mode syntax highlighting */
+@media (prefers-color-scheme: light) {
+    .token.comment,
+    .token.prolog,
+    .token.doctype,
+    .token.cdata {
+        color: #708090 !important;
+    }
+
+    .token.punctuation {
+        color: #999 !important;
+    }
+
+    .token.property,
+    .token.tag,
+    .token.boolean,
+    .token.number,
+    .token.constant,
+    .token.symbol,
+    .token.deleted {
+        color: #905 !important;
+    }
+
+    .token.selector,
+    .token.attr-name,
+    .token.string,
+    .token.char,
+    .token.builtin,
+    .token.inserted {
+        color: #690 !important;
+    }
+
+    .token.operator,
+    .token.entity,
+    .token.url,
+    .language-css .token.string,
+    .style .token.string {
+        color: #9a6e3a !important;
+    }
+
+    .token.atrule,
+    .token.attr-value,
+    .token.keyword {
+        color: #07a !important;
+    }
+
+    .token.function,
+    .token.class-name {
+        color: #dd4a68 !important;
+    }
+}
+
+/* Dark mode syntax highlighting */
+@media (prefers-color-scheme: dark) {
+    .token.comment,
+    .token.prolog,
+    .token.doctype,
+    .token.cdata {
+        color: #8292a2 !important;
+    }
+
+    .token.punctuation {
+        color: #f8f8f2 !important;
+    }
+
+    .token.property,
+    .token.tag,
+    .token.constant,
+    .token.symbol,
+    .token.deleted {
+        color: #f92672 !important;
+    }
+
+    .token.boolean,
+    .token.number {
+        color: #ae81ff !important;
+    }
+
+    .token.selector,
+    .token.attr-name,
+    .token.string,
+    .token.char,
+    .token.builtin,
+    .token.inserted {
+        color: #a6e22e !important;
+    }
+
+    .token.operator,
+    .token.entity,
+    .token.url,
+    .language-css .token.string,
+    .style .token.string,
+    .token.variable {
+        color: #f8f8f2 !important;
+    }
+
+    .token.atrule,
+    .token.attr-value,
+    .token.function,
+    .token.class-name {
+        color: #e6db74 !important;
+    }
+
+    .token.keyword {
+        color: #66d9ef !important;
+    }
+}
+
+/* Ensure copy button works with syntax highlighting */
+pre[class*="language-"] .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    background: var(--copy-btn-bg);
+    color: var(--copy-btn-text);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.9em;
+    cursor: pointer;
+    opacity: 0.7;
+    z-index: 10;
+    user-select: none;
+    border: none;
+    transition: opacity 0.2s;
+}
+
+pre[class*="language-"]:hover .copy-btn {
+    opacity: 1;
+}

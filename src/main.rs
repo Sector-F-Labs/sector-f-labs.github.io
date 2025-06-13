@@ -1,7 +1,7 @@
 use regex::Regex;
 use std::error::Error;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -74,6 +74,25 @@ fn wrap_code_blocks(html: &str) -> String {
     .to_string()
 }
 
+fn add_syntax_highlighting(html: &str) -> String {
+    // Add language classes to code blocks for Prism.js
+    // This matches <pre><code class="language-xyz"> pattern from markdown
+    let re = Regex::new(r#"<pre><code class="language-([^"]+)">"#).unwrap();
+    let result = re.replace_all(
+        html,
+        r#"<pre class="language-$1"><code class="language-$1">"#,
+    );
+
+    // Also handle plain code blocks without language specification
+    let plain_re = Regex::new(r"<pre><code>").unwrap();
+    plain_re
+        .replace_all(
+            &result,
+            r#"<pre class="language-none"><code class="language-none">"#,
+        )
+        .to_string()
+}
+
 fn inject_copy_button(html: &str) -> String {
     // Insert a <button class="copy-btn">Copy</button> as the first child of every <pre> block
     let re = Regex::new(r"(<pre[^>]*>)").unwrap();
@@ -86,6 +105,7 @@ fn process_project(project: &Project, layout: &str) -> Result<()> {
     let readme_content = fs::read_to_string(&readme_path)?;
 
     let html_content = markdown::to_html(&readme_content);
+    let html_content = add_syntax_highlighting(&html_content);
     let html_content = inject_copy_button(&html_content);
     let html_content = wrap_code_blocks(&html_content);
 

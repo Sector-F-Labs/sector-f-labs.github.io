@@ -31,6 +31,15 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="/style.css" />
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dark.min.css"
+            rel="stylesheet"
+            media="(prefers-color-scheme: dark)"
+        />
     </head>
     <body>
         <header>
@@ -70,7 +79,7 @@
 <p>Reservoir is your helpful memory for AI conversations. It sits between your app and any OpenAI-compatible Chat Completions API, making it easier to have rich, ongoing conversations with your favorite language models from multiple providers.</p>
 <h3>Why does this matter?</h3>
 <p>When you use any <a href="https://platform.openai.com/docs/guides/chat">OpenAI-compatible Chat Completions API</a>, you need to send the full conversation history with every request. For example:</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-json">[
+<div class="code-block"><pre class="language-json"><button class="copy-btn">Copy</button><code class="language-json">[
   {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is 1 + 1?&quot;},
   {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;2&quot;},
   {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is the answer times 3?&quot;}
@@ -136,7 +145,7 @@
 </ul>
 <h2>Overview</h2>
 <p>Reservoir intercepts your API calls, enriches them with relevant history, manages token limits, and then forwards them to the actual LLM service.</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-mermaid">sequenceDiagram
+<div class="code-block"><pre class="language-mermaid"><button class="copy-btn">Copy</button><code class="language-mermaid">sequenceDiagram
     participant App
     participant Reservoir
     participant Neo4j
@@ -181,7 +190,7 @@
 <p>Reservoir provides an OpenAI-compatible API endpoint. You can use your system username as the partition and your application name as the instance for best results.</p>
 <h3>Starting the Server</h3>
 <p>To start the Reservoir server:</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- start
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- start
 </code></pre></div>
 <p>This command:</p>
 <ol>
@@ -191,12 +200,12 @@
 <p>The server will be available at <code>http://localhost:3017</code> (or your configured port).</p>
 <h4>Ollama Mode</h4>
 <p>For seamless integration with Ollama-compatible clients, you can start Reservoir in Ollama mode:</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- start --ollama
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- start --ollama
 </code></pre></div>
 <p>This mode configures Reservoir to act as a drop-in replacement for Ollama, making it easy to add memory and context to existing Ollama-based applications.</p>
 <h4>Testing Your Setup</h4>
 <p>You can test your Reservoir installation using the included hurl tests:</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash"># Test all endpoints including request forwarding
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash"># Test all endpoints including request forwarding
 ./hurl/test.sh
 
 # Test specific endpoints
@@ -209,26 +218,26 @@ hurl --variable USER=&quot;$USER&quot; hurl/test_forwarding.hurl
 ./test_forwarding.sh
 </code></pre></div>
 <p>Or test directly with Ollama (if you have it running):</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">hurl hurl/ollama_mode.hurl
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">hurl hurl/ollama_mode.hurl
 </code></pre></div>
 <h3>Import/Export Data</h3>
 <p>Reservoir supports exporting all message nodes to a JSON file and importing them back into the database. This is useful for backup, migration, or sharing your AI conversation history.</p>
 <h4>Export all message nodes to JSON</h4>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- export &gt; messages.json
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- export &gt; messages.json
 </code></pre></div>
 <p>This command prints all message nodes in the database as pretty-printed JSON to stdout. Redirect the output to a file to save it.</p>
 <h4>Import message nodes from a JSON file</h4>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- import path/to/messages.json
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- import path/to/messages.json
 </code></pre></div>
 <h3>View the last N messages</h3>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- view &lt;COUNT&gt; [--partition &lt;PARTITION&gt;] [--instance &lt;INSTANCE&gt;]
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- view &lt;COUNT&gt; [--partition &lt;PARTITION&gt;] [--instance &lt;INSTANCE&gt;]
 </code></pre></div>
 <p>Displays the last <code>&lt;COUNT&gt;</code> messages in the specified partition and instance. If not provided, <code>partition</code> defaults to &quot;default&quot; and <code>instance</code> defaults to the partition.</p>
 <p>Example:</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- view 5 --partition sales --instance eu-west
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">cargo run -- view 5 --partition sales --instance eu-west
 </code></pre></div>
 <p>Sample output:</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code>2025-05-09T14:23:01+00:00 [abc123] user: Hello there!
+<div class="code-block"><pre class="language-none"><button class="copy-btn">Copy</button><code class="language-none">2025-05-09T14:23:01+00:00 [abc123] user: Hello there!
 2025-05-09T14:23:02+00:00 [abc123] assistant: Hi! How can I help?
 2025-05-09T14:24:10+00:00 [def456] user: Show me last week's sales report.
 2025-05-09T14:24:12+00:00 [def456] assistant: Here is the summary for last week's sales...
@@ -251,7 +260,7 @@ hurl --variable USER=&quot;$USER&quot; hurl/test_forwarding.hurl
 </blockquote>
 <h4>Curl Examples</h4>
 <p><strong>OpenAI Model:</strong></p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">curl &quot;http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions&quot; \
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">curl &quot;http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions&quot; \
     -H &quot;Content-Type: application/json&quot; \
     -H &quot;Authorization: Bearer $OPENAI_API_KEY&quot; \
     -d '{
@@ -265,7 +274,7 @@ hurl --variable USER=&quot;$USER&quot; hurl/test_forwarding.hurl
     }'
 </code></pre></div>
 <p><strong>Ollama Model (no API key needed):</strong></p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">curl &quot;http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions&quot; \
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">curl &quot;http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions&quot; \
     -H &quot;Content-Type: application/json&quot; \
     -d '{
         &quot;model&quot;: &quot;gemma3&quot;,
@@ -278,7 +287,7 @@ hurl --variable USER=&quot;$USER&quot; hurl/test_forwarding.hurl
     }'
 </code></pre></div>
 <p><strong>With Web Search Options:</strong></p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">curl &quot;http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions&quot; \
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">curl &quot;http://127.0.0.1:3017/partition/$USER/instance/reservoir/v1/chat/completions&quot; \
     -H &quot;Content-Type: application/json&quot; \
     -H &quot;Authorization: Bearer $OPENAI_API_KEY&quot; \
     -d '{
@@ -297,7 +306,7 @@ hurl --variable USER=&quot;$USER&quot; hurl/test_forwarding.hurl
 </code></pre></div>
 <h4>Python Examples (using <code>openai</code> library)</h4>
 <p><strong>Basic Usage with OpenAI:</strong></p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-python">import os
+<div class="code-block"><pre class="language-python"><button class="copy-btn">Copy</button><code class="language-python">import os
 from openai import OpenAI
 
 INSTANCE = &quot;my-application&quot;
@@ -322,7 +331,7 @@ completion = client.chat.completions.create(
 print(completion.choices[0].message.content)
 </code></pre></div>
 <p><strong>Using Ollama (no API key required):</strong></p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-python">import os
+<div class="code-block"><pre class="language-python"><button class="copy-btn">Copy</button><code class="language-python">import os
 from openai import OpenAI
 
 INSTANCE = &quot;my-application&quot;
@@ -347,7 +356,7 @@ completion = client.chat.completions.create(
 print(completion.choices[0].message.content)
 </code></pre></div>
 <p><strong>With Web Search Options:</strong></p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-python">completion = client.chat.completions.create(
+<div class="code-block"><pre class="language-python"><button class="copy-btn">Copy</button><code class="language-python">completion = client.chat.completions.create(
     model=&quot;gpt-4o-search-preview&quot;,
     messages=[
         {
@@ -365,7 +374,7 @@ print(completion.choices[0].message.content)
 </code></pre></div>
 <h3>Environment Variables</h3>
 <p>Reservoir supports customizing provider endpoints via environment variables:</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash"># OpenAI (default: https://api.openai.com/v1/chat/completions)
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash"># OpenAI (default: https://api.openai.com/v1/chat/completions)
 export RSV_OPENAI_BASE_URL=&quot;https://api.openai.com/v1/chat/completions&quot;
 
 # Ollama (default: http://localhost:11434/v1/chat/completions)
@@ -400,7 +409,7 @@ export GEMINI_API_KEY=&quot;your-gemini-key&quot;
 <h4>&quot;Internal Server Error&quot; Responses</h4>
 <ul>
 <li><strong>API Keys</strong>: Verify your API keys are set correctly:
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code class="language-bash">echo $OPENAI_API_KEY
+<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">echo $OPENAI_API_KEY
 echo $MISTRAL_API_KEY
 echo $GEMINI_API_KEY
 </code></pre></div>
@@ -444,6 +453,8 @@ echo $GEMINI_API_KEY
             <p>&copy; 2025 Sector F Labs. All rights reserved.</p>
         </footer>
 
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 document.querySelectorAll(".copy-btn").forEach(function (btn) {
