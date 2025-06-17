@@ -1,39 +1,19 @@
 use regex::Regex;
 
-/// Adds syntax highlighting classes to code blocks for Prism.js.
+/// Cleans up code block markup for consistent styling.
 ///
-/// This function processes HTML content and adds appropriate CSS classes to code blocks
-/// to enable syntax highlighting. It handles both language-specific and plain code blocks.
+/// This function normalizes code block HTML by removing language classes
+/// that may have been added by markdown processors.
 ///
 /// # Arguments
 /// * `html` - The HTML content to process
 ///
 /// # Returns
-/// * `String` - The processed HTML with syntax highlighting classes added
-///
-/// # Examples
-/// ```
-/// let html = r#"<pre><code class="language-rust">fn main() {}</code></pre>"#;
-/// let result = add_syntax_highlighting(html);
-/// // Result will have classes added to both <pre> and <code> tags
-/// ```
-pub fn add_syntax_highlighting(html: &str) -> String {
-    // Add language classes to code blocks for Prism.js
-    // This matches <pre><code class="language-xyz"> pattern from markdown
-    let re = Regex::new(r#"<pre><code class="language-([^"]+)">"#).unwrap();
-    let result = re.replace_all(
-        html,
-        r#"<pre class="language-$1"><code class="language-$1">"#,
-    );
-
-    // Also handle plain code blocks without language specification
-    let plain_re = Regex::new(r"<pre><code>").unwrap();
-    plain_re
-        .replace_all(
-            &result,
-            r#"<pre class="language-none"><code class="language-none">"#,
-        )
-        .to_string()
+/// * `String` - The processed HTML with normalized code blocks
+pub fn normalize_code_blocks(html: &str) -> String {
+    // Remove language classes from code blocks for simpler styling
+    let re = Regex::new(r#"<pre><code[^>]*>"#).unwrap();
+    re.replace_all(html, "<pre><code>").to_string()
 }
 
 /// Injects copy buttons into code blocks.
@@ -75,7 +55,7 @@ pub fn wrap_code_blocks(html: &str) -> String {
 /// Processes HTML content to add code block enhancements.
 ///
 /// This is a convenience function that applies all code block processing in the correct order:
-/// 1. Adds syntax highlighting classes
+/// 1. Normalizes code block markup
 /// 2. Injects copy buttons
 /// 3. Wraps code blocks in containers
 ///
@@ -85,7 +65,7 @@ pub fn wrap_code_blocks(html: &str) -> String {
 /// # Returns
 /// * `String` - The fully processed HTML with all code block enhancements
 pub fn process_code_blocks(html: &str) -> String {
-    let html = add_syntax_highlighting(html);
+    let html = normalize_code_blocks(html);
     let html = inject_copy_button(&html);
     wrap_code_blocks(&html)
 }
@@ -119,10 +99,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_add_syntax_highlighting() {
+    fn test_normalize_code_blocks() {
         let html = r#"<pre><code class="language-rust">fn main() {}</code></pre>"#;
-        let result = add_syntax_highlighting(html);
-        assert!(result.contains(r#"<pre class="language-rust"><code class="language-rust">"#));
+        let result = normalize_code_blocks(html);
+        assert!(result.contains("<pre><code>fn main() {}</code></pre>"));
     }
 
     #[test]

@@ -31,15 +31,7 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="/style.css" />
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
-            rel="stylesheet"
-        />
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dark.min.css"
-            rel="stylesheet"
-            media="(prefers-color-scheme: dark)"
-        />
+
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -94,7 +86,7 @@
 </ul>
 <p>The config file is created automatically on first run if it does not exist.</p>
 <h3>Example <code>config.toml</code></h3>
-<div class="code-block"><pre class="language-toml"><button class="copy-btn">Copy</button><code class="language-toml">openai_api_key = &quot;sk-...yourkey...&quot;
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code>openai_api_key = &quot;sk-...yourkey...&quot;
 api_url = &quot;https://api.openai.com/v1/chat/completions&quot;
 </code></pre></div>
 <ul>
@@ -102,7 +94,7 @@ api_url = &quot;https://api.openai.com/v1/chat/completions&quot;
 <li>You can edit this file to change your API key or use a different API URL.</li>
 </ul>
 <h2>Building and Running</h2>
-<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash"># Build the application
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code># Build the application
 cargo build --release
 
 # Run the application
@@ -169,8 +161,6 @@ cargo run --release
             <p>&copy; 2025 Sector F Labs. All rights reserved.</p>
         </footer>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 document.querySelectorAll(".copy-btn").forEach(function (btn) {

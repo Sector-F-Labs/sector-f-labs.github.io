@@ -31,15 +31,7 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="/style.css" />
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
-            rel="stylesheet"
-        />
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dark.min.css"
-            rel="stylesheet"
-            media="(prefers-color-scheme: dark)"
-        />
+
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -93,7 +85,7 @@
 <p>All findings, unexpected outcomes, performance observations, and debugging insights will be documented in a <code>logs/</code> directory with entries dated in ISO format (e.g., <code>logs/2025-05-31-pipeline-performance.md</code>, <code>logs/2025-06-02-load-balancer-behavior.md</code>). This documentation will capture both successful patterns and failure modes to inform future iterations and architectural decisions.</p>
 <h4><strong>Primary Demonstration System:</strong></h4>
 <p>The core of this experiment will be proven by implementing and observing the following Telegram bot backend pipeline:</p>
-<div class="code-block"><pre class="language-bash"><button class="copy-btn">Copy</button><code class="language-bash">telegram-input \
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code>telegram-input \
 | auth-service \
 | capability-dispatcher --capabilities 'canned-responder;llm-responder' \
 | load-balancer --workers 4 \
@@ -247,8 +239,6 @@ objects, each on a single line, leveraging the newline character (<code>\n</code
             <p>&copy; 2025 Sector F Labs. All rights reserved.</p>
         </footer>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 document.querySelectorAll(".copy-btn").forEach(function (btn) {

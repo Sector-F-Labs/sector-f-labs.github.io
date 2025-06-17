@@ -19,15 +19,15 @@
         /* Dark mode colors */
         --bg-color: #1e1e1e;
         --text-color: #ddd;
-        --border-color: #666666;
+        --border-color: #444444;
         --header-bg: transparent;
         --nav-bg: transparent;
         --main-bg: transparent;
-        --pre-bg: #2d2d2d;
-        --copy-btn-bg: #666666;
+        --pre-bg: #282c34;
+        --copy-btn-bg: #444444;
         --copy-btn-text: #ffffff;
-        --copy-btn-hover: #888888;
-        --hr-color: #666666;
+        --copy-btn-hover: #666666;
+        --hr-color: #444444;
         --link-color: #e77500;
     }
 }
@@ -234,148 +234,76 @@ a {
     color: var(--link-color);
 }
 
-/* Prism.js syntax highlighting overrides */
-pre[class*="language-"] {
-    background-color: var(--pre-bg) !important;
-    border: 1px solid var(--border-color);
+/* GitHub link styling */
+.github-link {
+    background: linear-gradient(135deg, #f6f8fa 0%, #e1e8ed 100%);
+    border: 1px solid #d0d7de;
     border-radius: 8px;
-    padding: 1em;
-    overflow-x: auto;
-    position: relative;
-    margin-bottom: 2em;
+    padding: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-code[class*="language-"] {
-    background: transparent !important;
-    color: var(--text-color) !important;
+.github-link p {
+    margin: 0;
+    font-size: 16px;
 }
 
-/* Light mode syntax highlighting */
-@media (prefers-color-scheme: light) {
-    .token.comment,
-    .token.prolog,
-    .token.doctype,
-    .token.cdata {
-        color: #708090 !important;
-    }
-
-    .token.punctuation {
-        color: #999 !important;
-    }
-
-    .token.property,
-    .token.tag,
-    .token.boolean,
-    .token.number,
-    .token.constant,
-    .token.symbol,
-    .token.deleted {
-        color: #905 !important;
-    }
-
-    .token.selector,
-    .token.attr-name,
-    .token.string,
-    .token.char,
-    .token.builtin,
-    .token.inserted {
-        color: #690 !important;
-    }
-
-    .token.operator,
-    .token.entity,
-    .token.url,
-    .language-css .token.string,
-    .style .token.string {
-        color: #9a6e3a !important;
-    }
-
-    .token.atrule,
-    .token.attr-value,
-    .token.keyword {
-        color: #07a !important;
-    }
-
-    .token.function,
-    .token.class-name {
-        color: #dd4a68 !important;
-    }
+.github-link i {
+    color: #24292f;
+    margin-right: 8px;
+    font-size: 18px;
 }
 
-/* Dark mode syntax highlighting */
+.github-link strong {
+    color: #24292f;
+}
+
+.github-link a {
+    color: #0969da;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.github-link a:hover {
+    text-decoration: underline;
+}
+
 @media (prefers-color-scheme: dark) {
-    .token.comment,
-    .token.prolog,
-    .token.doctype,
-    .token.cdata {
-        color: #8292a2 !important;
+    .github-link {
+        background: linear-gradient(135deg, #21262d 0%, #30363d 100%);
+        border: 1px solid #444c56;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
 
-    .token.punctuation {
-        color: #f8f8f2 !important;
+    .github-link i {
+        color: #f0f6fc;
     }
 
-    .token.property,
-    .token.tag,
-    .token.constant,
-    .token.symbol,
-    .token.deleted {
-        color: #f92672 !important;
+    .github-link strong {
+        color: #f0f6fc;
     }
 
-    .token.boolean,
-    .token.number {
-        color: #ae81ff !important;
-    }
-
-    .token.selector,
-    .token.attr-name,
-    .token.string,
-    .token.char,
-    .token.builtin,
-    .token.inserted {
-        color: #a6e22e !important;
-    }
-
-    .token.operator,
-    .token.entity,
-    .token.url,
-    .language-css .token.string,
-    .style .token.string,
-    .token.variable {
-        color: #f8f8f2 !important;
-    }
-
-    .token.atrule,
-    .token.attr-value,
-    .token.function,
-    .token.class-name {
-        color: #e6db74 !important;
-    }
-
-    .token.keyword {
-        color: #66d9ef !important;
+    .github-link a {
+        color: #58a6ff;
     }
 }
 
-/* Ensure copy button works with syntax highlighting */
-pre[class*="language-"] .copy-btn {
-    position: absolute;
-    top: 8px;
-    right: 16px;
-    background: var(--copy-btn-bg);
-    color: var(--copy-btn-text);
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 0.9em;
-    cursor: pointer;
-    opacity: 0.7;
-    z-index: 10;
-    user-select: none;
-    border: none;
-    transition: opacity 0.2s;
+/* Clean code block styling */
+code {
+    font-family:
+        "Roboto Mono", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+    font-size: 14px;
+    background-color: var(--pre-bg);
+    padding: 2px 4px;
+    border-radius: 3px;
+    color: var(--text-color);
 }
 
-pre[class*="language-"]:hover .copy-btn {
-    opacity: 1;
+pre code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    font-size: 14px;
+    line-height: 1.4;
 }
