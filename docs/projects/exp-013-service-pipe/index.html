@@ -64,170 +64,106 @@
             <main><div class="github-link">
                 <p><strong><i class="fab fa-github"></i> GitHub Repository:</strong> <a href="https://github.com/Sector-F-Labs/exp-013-service-pipe" target="_blank" rel="noopener noreferrer">https://github.com/Sector-F-Labs/exp-013-service-pipe</a></p>
             </div>
-            <hr style="margin: 2rem 0;"><h1>exp-013-service-pipe</h1>
-<h3>1. <strong>Title:</strong></h3>
-<p><em>Service Pipe Architecture Evaluation: Composing Services with Unix-Style Pipes with messages formated in JSONL</em></p>
-<h3>2. <strong>Experiment Number &amp; Status:</strong></h3>
-<ul>
-<li><strong>Number:</strong> <code>exp-013</code></li>
-<li><strong>Status:</strong> <code>Proposed</code></li>
-<li><strong>Author(s):</strong> Divan Visagie</li>
-<li><strong>Date:</strong> 03/06/2025</li>
-</ul>
-<h3>3. <strong>Abstract / Summary:</strong></h3>
-<p>This experiment proposes to evaluate the effectiveness of composing independent services using Unix-style pipes. It focuses on a lightweight, stream-based protocol leveraging <strong>JSON Lines (JSONL)</strong> with structured message tagging (<code>&quot;type&quot;</code> and <code>&quot;correlationId&quot;</code>) to enable highly composable, modular, and reconfigurable architectures. Key areas of exploration include efficient message processing, scaling patterns (batch parallelism with <code>gnu parallel</code>, multi-client distribution with a <code>load-balancer</code> utility), and integrating arbitrary commands via <code>jsonl-wrap</code>. The primary demonstration system for this experiment will be a Telegram bot backend pipeline, showcasing end-to-end user request processing.</p>
-<h3>4. <strong>Motivation:</strong></h3>
-<p>As systems grow in complexity, the need for highly modular, reconfigurable, and language-agnostic components becomes critical. This experiment is motivated by the desire to explore a simple yet powerful paradigm—Unix pipes—as a robust foundation for inter-service communication. By standardizing on JSONL streaming and specific message protocol rules, we aim to reduce coupling, simplify deployment, and enhance the ability to dynamically chain and adapt services, mirroring the composability found in traditional shell scripting but for complex application logic.</p>
-<h3>5. <strong>Goal / Hypothesis:</strong></h3>
-<p>We hypothesize that a stream-based, JSONL-centric pipe protocol, combined with clear message typing and correlation, will allow independent services to be seamlessly composed and reconfigured through simple command-line operations. This approach is expected to yield highly composable, modular, efficient, and language-agnostic system architectures capable of handling both batch and continuous data streams, as well as enabling various scaling patterns.</p>
-<h3>6. <strong>Methodology:</strong></h3>
-<p>This experiment involves developing and testing a pipeline where services are chained using Unix pipes, with communication strictly adhering to a defined JSONL streaming protocol.</p>
-<p>All findings, unexpected outcomes, performance observations, and debugging insights will be documented in a <code>logs/</code> directory with entries dated in ISO format (e.g., <code>logs/2025-05-31-pipeline-performance.md</code>, <code>logs/2025-06-02-load-balancer-behavior.md</code>). This documentation will capture both successful patterns and failure modes to inform future iterations and architectural decisions.</p>
-<h4><strong>Primary Demonstration System:</strong></h4>
-<p>The core of this experiment will be proven by implementing and observing the following Telegram bot backend pipeline:</p>
-<div class="code-block"><pre><button class="copy-btn">Copy</button><code>telegram-input \
+            <hr style="margin: 2rem 0;"><h1>Service Pipe Architecture (exp-013)</h1>
+<h2>Experiment Details</h2>
+<p>| Item | Value |
+| --- | --- |
+| Experiment | exp-013 |
+| Status | Proposed |
+| Author | Divan Visagie |
+| Date | 03/06/2025 |</p>
+<h2>Abstract</h2>
+<p>This project explores composing independent services using simple Unix-style pipes. Each service communicates via a lightweight JSON Lines (JSONL) protocol. By tagging every message with a <code>type</code> and optional <code>correlationId</code>, these services can be rearranged without changing code. The experiment demonstrates this approach by building a Telegram bot pipeline.</p>
+<h2>Motivation</h2>
+<p>Modern systems often require complex network setups to connect small services. Using Unix pipes and a single streaming format simplifies this. With one protocol and small utilities, we can chain tools together much like classic shell commands.</p>
+<h2>Hypothesis</h2>
+<p>If each service accepts and emits JSONL streams, pipelines become easy to reconfigure. We expect a modular and language‑agnostic system that handles batch or continuous data equally well.</p>
+<h2>Methodology</h2>
+<p>The experiment chains services together with <code>|</code> while ensuring each command reads and writes JSONL. Observations and logs live under <code>logs/</code> with ISO date names.</p>
+<h3>Primary Demonstration Pipeline</h3>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code>telegram-in \
 | auth-service \
 | capability-dispatcher --capabilities 'canned-responder;llm-responder' \
 | load-balancer --workers 4 \
 | parallel --jobs 4 --pipe --line-buffer 'llm-proxy | response-formatter' \
-| telegram-output
+| telegram-out
 </code></pre></div>
-<p>Let's break down how each service in this specific pipeline adheres to the proposed pipe protocol and contributes to the overall goals:</p>
+<div class="code-block"><pre><button class="copy-btn">Copy</button><code>flowchart LR
+  A[telegram-in] --&gt; B[auth-service]
+  B --&gt; C[capability-dispatcher]
+  C --&gt; D[load-balancer]
+  D --&gt; P
+  subgraph P[parallel]
+    E[llm-proxy] --&gt; F[response-formatter]
+  end
+  P --&gt; G[telegram-out]
+</code></pre></div>
+<h4>telegram-in</h4>
+<p>Receives messages from Kafka and converts them to the experiment format.</p>
+<h4>auth-service</h4>
+<p>Checks user permissions and enriches messages.</p>
+<h4>capability-dispatcher</h4>
+<p>Routes requests to canned or LLM responders.</p>
+<h4>load-balancer</h4>
+<p>Assigns a <code>workerId</code> so parallel workers know which messages to handle.</p>
+<h4>parallel block</h4>
+<p>Runs <code>llm-proxy</code> and <code>response-formatter</code> concurrently.</p>
+<h4>telegram-out</h4>
+<p>Publishes final responses back to Kafka.</p>
+<h3>Environment Variables for Telegram Adapters</h3>
+<p>| Variable | Purpose | Default |
+| --- | --- | --- |
+| <code>KAFKA_BROKERS</code> | Comma separated broker list | – |
+| <code>KAFKA_IN_TOPIC</code> | Topic consumed by <code>telegram-in</code> | <code>telegram_in</code> |
+| <code>KAFKA_OUT_TOPIC</code> | Topic produced by <code>telegram-out</code> | <code>telegram_out</code> |</p>
+<h2>Pipe Protocol</h2>
+<p>Every JSONL message follows a small set of fields.</p>
+<h3>JSON Lines</h3>
+<p>Each line is a complete JSON object. The newline separates messages.</p>
+<h3>Message Fields</h3>
+<p>| Field | Purpose | Required |
+| --- | --- | --- |
+| <code>type</code> | Identifies the message so services know if they should act | Yes |
+| <code>correlationId</code> | Traces a request through the pipeline | Recommended |
+| <code>workerId</code> | Marks which worker should handle the message | Optional |</p>
+<h3>Processing and Forwarding</h3>
+<p>Services check <code>type</code> (and <code>workerId</code> when set). They modify or pass through messages, always preserving the JSONL format.</p>
+<h3>Additional Utilities</h3>
+<p>Utilities like <code>jsonl-wrap</code> or <code>load-balancer</code> help integrate regular commands and balance work across parallel processes.</p>
+<h2>Success Criteria</h2>
 <ul>
-<li><strong><code>telegram-input</code>:</strong> This service acts as the initial ingress point. It will receive incoming messages from the Telegram API, convert them into JSONL format, assign a unique <code>correlationId</code> to each request, and set an initial <code>type</code> (e.g., <code>&quot;type&quot;: &quot;telegram_message&quot;</code>). It streams these JSONL messages to <code>stdout</code>.</li>
-<li><strong><code>auth-service</code>:</strong> This service consumes JSONL messages (e.g., <code>type: &quot;telegram_message&quot;</code>). It performs authentication/authorization checks. If successful, it passes the message through, potentially enriching it with user details or changing its <code>type</code> (e.g., <code>&quot;type&quot;: &quot;authenticated_request&quot;</code>). If authentication fails, it might emit an error message and/or drop the original message, demonstrating filtering.</li>
-<li><strong><code>capability-dispatcher --capabilities 'canned-responder;llm-responder'</code>:</strong> This is a key component demonstrating the &quot;Centralized Capability Dispatcher&quot; pattern. It receives <code>authenticated_request</code> messages, inspects their content (e.g., user query), and based on predefined logic or <code>--capabilities</code> arguments, determines the appropriate next step. It then transforms the message's <code>type</code> (e.g., to <code>&quot;type&quot;: &quot;canned_response_request&quot;</code> or <code>&quot;type&quot;: &quot;llm_request&quot;</code>) and streams it onward. Messages not matching a capability are passed through unchanged.</li>
-<li><strong><code>load-balancer --workers 4</code>:</strong> This service assigns worker IDs to incoming messages to ensure proper distribution across parallel workers. It receives messages (e.g., <code>type: &quot;llm_request&quot;</code>) and adds a <code>workerId</code> field (0-3) using round-robin or hash-based assignment. This ensures that parallel workers can identify which messages are intended for them to process, enabling more sophisticated load distribution than simple line-based splitting.</li>
-<li><strong><code>parallel --jobs 4 --pipe --line-buffer 'llm-proxy | response-formatter'</code>:</strong> This block showcases &quot;Batch Parallelism with <code>gnu parallel</code>&quot;.
-<ul>
-<li>The <code>capability-dispatcher</code> will likely output messages of <code>type: &quot;llm_request&quot;</code> when an LLM interaction is needed.</li>
-<li>The <code>load-balancer</code> assigns a <code>workerId</code> (0-3) to each <code>llm_request</code> message, enabling intelligent work distribution.</li>
-<li><code>gnu parallel</code> will read these worker-assigned <code>llm_request</code> messages line by line (<code>--pipe --line-buffer</code>). For each incoming <code>llm_request</code>, it will launch a new instance (up to 4 concurrent jobs) of the sub-pipeline:
-<ul>
-<li><strong><code>llm-proxy</code>:</strong> This service receives <code>llm_request</code> JSONL messages, makes the actual API call to the LLM (e.g., Gemini, Ollama), and wraps the LLM's raw output back into a JSONL message (e.g., <code>type: &quot;llm_raw_response&quot;</code>), preserving the <code>correlationId</code>. This service might involve significant startup costs, making persistent workers (though not directly used here with <code>parallel</code>'s per-job process model) a consideration for future iteration.</li>
-<li><strong><code>response-formatter</code>:</strong> This service takes <code>llm_raw_response</code> messages, processes/formats the LLM's output into a user-friendly format, and sets the final <code>type</code> (e.g., <code>&quot;type&quot;: &quot;final_telegram_response&quot;</code>).</li>
+<li>The Telegram pipeline runs end to end.</li>
+<li><code>type</code> and <code>correlationId</code> allow tracing and routing.</li>
+<li><code>parallel</code> improves throughput for LLM calls.</li>
+<li><code>jsonl-wrap</code> successfully wraps arbitrary commands.</li>
+<li>The order of services can change without redeployment.</li>
+<li>Long-running pipelines support both batch and streaming modes.</li>
 </ul>
-</li>
-<li><code>gnu parallel</code> collects outputs from all concurrent <code>llm-proxy | response-formatter</code> sub-pipelines before streaming to <code>telegram-output</code>.</li>
-</ul>
-</li>
-<li><strong><code>telegram-output</code>:</strong> This final service receives JSONL messages (e.g., <code>type: &quot;final_telegram_response&quot;</code>). It converts the structured JSONL data back into a Telegram message format and sends it to the original user via the Telegram API, completing the loop.</li>
-</ul>
-<h4><strong>General Pipe Protocol Adherence:</strong></h4>
-<p>Beyond this specific pipeline, the experiment will generally ensure:</p>
+<h2>Challenges</h2>
 <ul>
-<li>
-<p><strong>JSON Lines (JSONL) Streaming:</strong> All services emit individual JSON
-objects, each on a single line, leveraging the newline character (<code>\n</code>) as the message boundary.</p>
-</li>
-<li>
-<p><strong>Message Protocol Rules:</strong> Every JSON object transmitted includes:</p>
-<ul>
-<li>
-<p><strong>Rule #1: The Essential <code>&quot;type&quot;</code> Field (REQUIRED!):</strong> Used by services to decide whether to process, ignore, or just pass the message through.</p>
-</li>
-<li>
-<p><strong>Rule #2: The Recommended <code>&quot;correlationId&quot;</code> (For Tracing):</strong> Used for end-to-end tracing, debugging, and output ordering with parallelism.</p>
-</li>
-<li>
-<p><strong>Rule #3: The Optional <code>&quot;workerId&quot;</code> Field (For Load Balancing):</strong> Used by load-balancer services to assign messages to specific parallel workers, enabling intelligent work distribution and preventing worker starvation.</p>
-</li>
+<li>Keeping strict JSONL formatting across every service.</li>
+<li>Managing backpressure when parts of the pipeline run slower.</li>
+<li>Overhead from launching many short-lived processes.</li>
+<li>Building a robust <code>load-balancer</code> that handles failures gracefully.</li>
+<li>Debugging output from multiple concurrent workers.</li>
 </ul>
-</li>
-<li>
-<p><strong>Processing and Forwarding:</strong> Services inspect the <code>&quot;type&quot;</code> field to determine relevance. Additionally, services designed for parallel execution also inspect the <code>&quot;workerId&quot;</code> field - if present, the service only processes messages that match its assigned worker ID and ignores all others. Relevant messages are processed and potentially transformed; irrelevant messages are passed through unchanged.</p>
-</li>
-</ul>
-<h4><strong>Additional Utilities and Patterns Demonstrated:</strong></h4>
+<h2>Expected Outcome</h2>
+<p>This approach should enable highly composable and modular architectures that leverage existing Unix tools. We expect insights into efficient scaling patterns for both batch and continuous workloads.</p>
+<h2>Next Steps</h2>
 <ul>
-<li>The <code>jsonl-wrap</code> program will be developed and demonstrated to show how arbitrary shell commands can be integrated into the JSONL pipeline.</li>
-<li>The <code>load-balancer</code> utility will be demonstrated in the primary pipeline to show how worker ID assignment enables intelligent message distribution across parallel workers, ensuring optimal load balancing and preventing worker starvation.</li>
-<li>Both &quot;Sequential Filter Chain&quot; and &quot;Centralized Capability Dispatcher&quot; patterns will be conceptually validated through the design of services like <code>capability-dispatcher</code>.</li>
+<li>Finalize utilities like <code>jsonl-wrap</code> and <code>load-balancer</code>.</li>
+<li>Define a standard JSONL command protocol.</li>
+<li>Create schemas for common message <code>type</code> values.</li>
+<li>Build additional monitoring and debugging helpers.</li>
+<li>Explore dynamic service discovery and more flexible orchestration.</li>
 </ul>
-<h3>7. <strong>Success Criteria:</strong></h3>
-<p>The experiment will be deemed successful if:</p>
+<h2>References</h2>
 <ul>
-<li>
-<p>The <code>telegram-input</code> to <code>telegram-output</code> pipeline functions seamlessly, with messages transforming correctly between each service.</p>
-</li>
-<li>
-<p>The <code>type</code> and <code>correlationId</code> fields effectively enable intelligent filtering, routing (via <code>capability-dispatcher</code>), and end-to-end tracing across the chained services.</p>
-</li>
-<li>
-<p>The <code>parallel</code> block successfully demonstrates increased throughput for LLM processing tasks.</p>
-</li>
-<li>
-<p>The <code>jsonl-wrap</code> utility successfully integrates arbitrary shell commands into the JSONL pipeline.</p>
-</li>
-<li>
-<p>The pipeline exhibits high reconfigurability, allowing changes to service order or inclusion via simple command-line modifications without code redeployment.</p>
-</li>
-<li>
-<p>Long-running systems and persistent servers can be effectively composed using Unix pipes, demonstrating that the architecture supports both batch processing and continuous service orchestration without requiring service restarts or complex deployment procedures.</p>
-</li>
-</ul>
-<h3>8. <strong>Potential Challenges / Considerations:</strong></h3>
-<ul>
-<li>Ensuring strict JSONL adherence across all services and managing potential parsing errors, especially for malformed input.</li>
-<li>Managing backpressure effectively in complex pipelines, particularly when consuming services are slower than producers.</li>
-<li>Overhead associated with spawning new processes for very short-lived tasks when using <code>gnu parallel</code> frequently.</li>
-<li>Complexity of implementing a robust <code>load-balancer</code> utility that handles worker failures, graceful shutdowns, and potentially maintains warm connections for external APIs (relevant for future iterations of this base system).</li>
-<li>Debugging complex pipe chains without dedicated tooling that understands <code>correlationId</code> for interleaved outputs.</li>
-</ul>
-<h3>9. <strong>Expected Outcome / Learnings:</strong></h3>
-<p>We expect to validate the significant advantages of this Unix-pipe, JSONL-based approach:</p>
-<ul>
-<li>
-<p><strong>Composability:</strong> Ability to build powerful pipelines by chaining single-responsibility services.</p>
-</li>
-<li>
-<p><strong>Modularity:</strong> Each service is isolated, allowing independent updates or replacements.</p>
-</li>
-<li>
-<p><strong>Reconfigurability:</strong> Adjust pipeline structure with simple shell commands, eliminating the need for redeployment or re-architecting.</p>
-</li>
-<li>
-<p><strong>Efficiency:</strong> JSONL streaming is low-latency and low-memory, supporting infinite or long-lived data streams.</p>
-</li>
-<li>
-<p><strong>Language Agnosticism:</strong> Any service adhering to the protocol can participate, regardless of implementation language.</p>
-</li>
-<li>
-<p><strong>Leveraging Existing Knowledge:</strong> Complex systems can be configured and orchestrated using familiar shell scripting tools and techniques, reducing the learning curve and allowing teams to apply existing Unix/Linux administration skills.</p>
-</li>
-<li>
-<p><strong>Insights into Scaling:</strong> Learnings on effective strategies for both batch and continuous parallelism using standard Unix tools and custom utilities.</p>
-</li>
-</ul>
-<h3>10. <strong>Conclusion / Next Steps (Post-Experiment):</strong></h3>
-<p>The primary outcome of this experiment will be a set of learnings and insights to inform the development of the utility commands and supporting tools necessary to make this architectural pattern feasible for production use. Rather than integrating into an existing system, the focus will be on identifying and building the essential utilities and protocols required for robust, composable, and maintainable pipe-based service architectures. Next steps may include:</p>
-<ul>
-<li>
-<p>Finalizing core utilities: Complete development and testing of essential tools like <code>jsonl-wrap</code> (for integrating arbitrary shell commands into JSONL pipelines) and <code>load-balancer</code> (for intelligent worker assignment and distribution).</p>
-</li>
-<li>
-<p>Developing a standardized JSONL protocol for service commands: Create a comprehensive specification defining command structures, response formats, error handling, and control messages that enable services to communicate operational commands (start, stop, configure, health-check) through the same JSONL streaming interface.</p>
-</li>
-<li>
-<p>Designing standardized JSONL message schemas for common <code>type</code> values to ensure interoperability.</p>
-</li>
-<li>
-<p>Developing additional helper utilities for monitoring, logging, and debugging JSONL-based pipelines.</p>
-</li>
-<li>
-<p>Creating robust error handling and recovery mechanisms for pipe-based architectures.</p>
-</li>
-<li>
-<p>Investigating approaches for dynamic service discovery and flexible pipeline orchestration beyond static shell command composition.</p>
-</li>
-</ul>
-<h3>11. <strong>References / Related Work:</strong></h3>
-<ul>
-<li><a href="https://en.wikipedia.org/wiki/Unix_philosophy">Unix Philosophy and Inter-Process Communication (IPC) via pipes</a></li>
-<li><a href="https://jsonlines.org/">JSON Lines (JSONL) Specification</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Unix_philosophy">Unix Philosophy and IPC via pipes</a></li>
+<li><a href="https://jsonlines.org/">JSON Lines Specification</a></li>
 <li><a href="https://www.gnu.org/software/parallel/">GNU Parallel documentation</a></li>
 <li><a href="https://microservices.io/">Microservices Architecture patterns</a></li>
-<li><a href="https://martinfowler.com/articles/201701-event-driven.html">Event-Driven Architecture concepts</a></li>
+<li><a href="https://martinfowler.com/articles/201701-event-driven.html">Event-Driven Architecture</a></li>
 <li><a href="https://www.enterpriseintegrationpatterns.com/patterns/messaging/PipesAndFilters.html">Unix Pipes and Filters pattern</a></li>
 </ul>
 </main>
