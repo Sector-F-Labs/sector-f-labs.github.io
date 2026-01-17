@@ -1,38 +1,68 @@
+@font-face {
+    font-family: 'Ubuntu Mono';
+    src: url('/fonts/UbuntuMono-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Ubuntu Mono';
+    src: url('/fonts/UbuntuMono-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Ubuntu Mono';
+    src: url('/fonts/UbuntuMono-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Ubuntu Mono';
+    src: url('/fonts/UbuntuMono-BoldItalic.ttf') format('truetype');
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
 :root {
-    /* Light mode colors */
+    /* Light mode colors - from blog */
+    --accent-color: #e05a00;
     --bg-color: #ffffff;
-    --text-color: #000000;
-    --border-color: #444444;
-    --header-bg: transparent;
-    --nav-bg: transparent;
-    --main-bg: transparent;
-    --pre-bg: #f8f8f8;
-    --copy-btn-bg: #444444;
-    --copy-btn-text: #ffffff;
-    --copy-btn-hover: #222222;
-    --hr-color: #444444;
-    --link-color: #0066cc;
-    --footer-bg: #e6e6e6;
-    --footer-text: #666666;
+    --text-color: #111111;
+    --title-color: #0f0c0a;
+    --subtitle-color: #2f2925;
+    --link-color: #1a4fb5;
+    --border-color: #2f2925;
+    --pre-bg: transparent;
+    --code-bg: #000000;
+    --code-text: #ffffff;
+    --footer-bg: #ffffff;
+    --footer-text: #2f2925;
+    --hr-color: #2f2925;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        /* Dark mode colors */
-        --bg-color: #1e1e1e;
-        --text-color: #ddd;
-        --border-color: #444444;
-        --header-bg: transparent;
-        --nav-bg: transparent;
-        --main-bg: transparent;
-        --pre-bg: #222222;
-        --copy-btn-bg: #444444;
-        --copy-btn-text: #ffffff;
-        --copy-btn-hover: #666666;
-        --hr-color: #444444;
-        --link-color: #e77500;
-        --footer-bg: #161616;
-        --footer-text: #888888;
+        /* Dark mode colors - from blog */
+        --accent-color: #e05a00;
+        --bg-color: #0b0b0b;
+        --text-color: #d8d8d8;
+        --title-color: #ffffff;
+        --subtitle-color: #a8a8a8;
+        --link-color: #7fa6ff;
+        --border-color: #a8a8a8;
+        --pre-bg: #0f0f0f;
+        --code-bg: #ffffff;
+        --code-text: #000000;
+        --footer-bg: #0b0b0b;
+        --footer-text: #a8a8a8;
+        --hr-color: #a8a8a8;
     }
 }
 
@@ -40,18 +70,25 @@ html,
 body {
     margin: 0;
     padding: 0;
-    font-family: "Lexend", sans-serif;
-    font-weight: 300;
+    font-family: 'Ubuntu Mono', 'Courier New', Courier, monospace;
+    font-weight: 500;
     overflow-x: hidden;
-    text-overflow: wrap;
     background-color: var(--bg-color);
     color: var(--text-color);
+    font-size: 14pt;
+    line-height: 1.7;
+    letter-spacing: -0.3px;
 }
 
 body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+}
+
+::selection {
+    background: var(--accent-color);
+    color: #ffffff;
 }
 
 .layout-container {
@@ -68,10 +105,6 @@ body {
         filter: invert(1);
         opacity: 0.8;
     }
-
-    p {
-        color: var(--text-color);
-    }
 }
 
 img {
@@ -79,6 +112,8 @@ img {
     height: auto;
     display: block;
     margin: auto;
+    border: 1px solid var(--subtitle-color);
+    background: white;
 }
 
 p,
@@ -87,9 +122,11 @@ nav {
 }
 
 header h1 {
-    font-family: "Roboto Mono", monospace;
-    font-weight: 500;
+    font-family: 'Ubuntu Mono', monospace;
+    font-weight: 700;
     font-size: x-large;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 4px;
 }
 
 header {
@@ -108,9 +145,15 @@ header a {
     color: var(--text-color);
 }
 
+header a:hover {
+    color: var(--accent-color);
+}
+
 header img {
     width: 64px;
     height: auto;
+    border: none;
+    background: transparent;
 }
 
 h1,
@@ -119,8 +162,13 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: "Lexend", sans-serif;
-    font-weight: 400;
+    font-family: 'Ubuntu Mono', monospace;
+    font-weight: 700;
+    color: var(--title-color);
+}
+
+h2 {
+    color: var(--subtitle-color);
 }
 
 nav,
@@ -129,11 +177,6 @@ nav,
     flex-shrink: 0;
     margin: 0 24px 0 0;
     padding: 0 0 0 16px;
-}
-
-.circle {
-    border: solid 10px #000;
-    border-radius: 50%;
 }
 
 nav ul {
@@ -146,6 +189,14 @@ nav li {
     margin-bottom: 12px;
 }
 
+nav a {
+    text-decoration: none;
+}
+
+nav a:hover {
+    color: var(--accent-color);
+}
+
 main {
     max-width: 800px;
     margin: 0 auto;
@@ -156,10 +207,10 @@ main {
 }
 
 pre {
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid var(--border-color);
     background-color: var(--pre-bg);
-    padding: 1em;
+    padding: 14px;
     overflow-x: auto;
     position: relative;
     margin-bottom: 2em;
@@ -169,13 +220,13 @@ pre {
     position: absolute;
     top: 8px;
     right: 16px;
-    background: var(--copy-btn-bg);
-    color: var(--copy-btn-text);
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 0.9em;
+    background: var(--text-color);
+    color: var(--bg-color);
+    border-radius: 0;
+    padding: 4px 10px;
+    font-size: 12pt;
     cursor: pointer;
-    opacity: 0.7;
+    opacity: 0;
     z-index: 2;
     user-select: none;
     border: none;
@@ -186,13 +237,9 @@ pre:hover .copy-btn {
     opacity: 1;
 }
 
-.copy-btn:active {
-    background: var(--copy-btn-hover);
-}
-
-pre:hover::before {
-    opacity: 1;
-    background: var(--pre-bg);
+.copy-btn:hover {
+    background: var(--accent-color);
+    color: #ffffff;
 }
 
 @media (max-width: 600px) {
@@ -225,10 +272,11 @@ hr {
 }
 
 footer {
-    font-family: monospace;
+    font-family: 'Ubuntu Mono', monospace;
     background: var(--footer-bg);
     margin: 0;
     text-align: right;
+    border-top: 1px solid var(--accent-color);
 }
 
 footer p {
@@ -240,23 +288,21 @@ footer p {
 }
 
 footer .copyright {
-    background-color: var(--link-color);
-    color: var(--bg-color);
-    font-weight: 500;
-    padding-left: 8px;
-    padding-right: 8px;
+    background-color: var(--accent-color);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 4px 8px;
 }
 
 footer .github-footer {
-    background-color: var(--link-color);
-    color: var(--bg-color);
-    font-weight: 500;
-    padding-left: 8px;
-    padding-right: 8px;
+    background-color: var(--accent-color);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 4px 8px;
 }
 
 footer .github-footer a {
-    color: var(--bg-color);
+    color: #ffffff;
     text-decoration: none;
 }
 
@@ -266,18 +312,31 @@ footer .github-footer a:hover {
 
 a {
     color: var(--link-color);
+    text-decoration: underline;
 }
 
+a:visited {
+    color: var(--link-color);
+}
 
-
-/* Clean code block styling */
+/* Code styling */
 code {
-    font-family: monospace;
-    font-size: 14px;
+    font-family: 'Ubuntu Mono', monospace;
+    font-size: 12pt;
+    font-weight: 400;
 }
 
 pre code {
-    font-family: monospace;
-    font-size: 14px;
+    font-family: 'Ubuntu Mono', monospace;
+    font-size: 12pt;
     line-height: 1.4;
+}
+
+p > code, li > code {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 0;
+    border: none;
 }
