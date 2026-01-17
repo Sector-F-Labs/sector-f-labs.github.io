@@ -178,9 +178,9 @@ pub fn process_project(project: &Project, layout: &str) -> Result<()> {
             },
         )?;
 
-    // Add GitHub link section if available
+    // Add GitHub link section at the bottom if available
     let github_section = html::create_github_link_section(&project.github_url);
-    let main_content = format!("{}{}", github_section, html_with_images);
+    let main_content = format!("{}{}", html_with_images, github_section);
 
     // Apply layout template
     let final_html = templates::replace_template(layout, &[("{{ main_content }}", &main_content)]);

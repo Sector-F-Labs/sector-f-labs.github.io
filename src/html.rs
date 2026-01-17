@@ -70,10 +70,10 @@ pub fn process_code_blocks(html: &str) -> String {
     wrap_code_blocks(&html)
 }
 
-/// Creates a GitHub repository link section for project pages.
+/// Creates a GitHub repository link section for project pages (bottom placement).
 ///
 /// This function generates an HTML section with a link to the GitHub repository
-/// if a URL is provided.
+/// if a URL is provided, suitable for placing at the bottom of the page.
 ///
 /// # Arguments
 /// * `github_url` - Optional GitHub repository URL
@@ -83,10 +83,8 @@ pub fn process_code_blocks(html: &str) -> String {
 pub fn create_github_link_section(github_url: &Option<String>) -> String {
     if let Some(url) = github_url {
         format!(
-            r#"<div class="github-link">
-                <p><strong><i class="fab fa-github"></i> GitHub Repository:</strong> <a href="{}" target="_blank" rel="noopener noreferrer">{}</a></p>
-            </div>
-            <hr style="margin: 2rem 0;">"#,
+            r#"<h2>Source</h2>
+            <p><a href="{}" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i> {}</a></p>"#,
             url, url
         )
     } else {

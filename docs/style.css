@@ -274,40 +274,11 @@ hr {
 footer {
     font-family: 'Ubuntu Mono', monospace;
     background: var(--footer-bg);
+    color: var(--subtitle-color);
     margin: 0;
-    text-align: right;
+    text-align: center;
+    padding: 50px 0;
     border-top: 1px solid var(--accent-color);
-}
-
-footer p {
-    margin: 0;
-    color: var(--footer-text);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-footer .copyright {
-    background-color: var(--accent-color);
-    color: #ffffff;
-    font-weight: 700;
-    padding: 4px 8px;
-}
-
-footer .github-footer {
-    background-color: var(--accent-color);
-    color: #ffffff;
-    font-weight: 700;
-    padding: 4px 8px;
-}
-
-footer .github-footer a {
-    color: #ffffff;
-    text-decoration: none;
-}
-
-footer .github-footer a:hover {
-    text-decoration: underline;
 }
 
 a {
