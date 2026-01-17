@@ -17,24 +17,12 @@ fn main() -> Result<()> {
             "../reservoir".to_string(),
             "docs/projects/reservoir".to_string(),
         ),
-        Project::new(
-            "../md-chat".to_string(),
-            "docs/projects/md-chat".to_string(),
-        ),
-        Project::new(
-            "../exp-013-service-pipe".to_string(),
-            "docs/projects/exp-013-service-pipe".to_string(),
-        ),
     ];
 
     // Define site navigation links
     let links = vec![
-        SiteLink::new(
-            "exp-013-service-pipe".to_string(),
-            "/projects/exp-013-service-pipe".to_string(),
-        ),
+        SiteLink::new("CMF".to_string(), "/conversational-markdown-format/".to_string()),
         SiteLink::new("Reservoir".to_string(), "/projects/reservoir".to_string()),
-        SiteLink::new("md-chat".to_string(), "/projects/md-chat".to_string()),
     ];
 
     // Generate navigation menu HTML
